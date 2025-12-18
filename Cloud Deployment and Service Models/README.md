@@ -4,7 +4,7 @@ Cloud computing can be categorized based on **how the cloud infrastructure is de
 
 ---
 
-## PART 1: Cloud Deployment Models
+# Cloud Deployment Models
 
 Cloud **deployment models** define **where the cloud infrastructure is hosted and who has access to it**.
 
@@ -176,7 +176,7 @@ A **community cloud** is a cloud infrastructure **shared by multiple organizatio
 
 ---
 
-## PART 2: Cloud Service Models
+# Cloud Service Models
 
 Cloud **service models** define **what level of control the user has** and **what the cloud provider manages**.
 
