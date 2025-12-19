@@ -1,4 +1,12 @@
+# Cloud Computing
+<img src="https://github.com/bhuvan-raj/AWS-Zero-to-Hero/blob/main/assets/cloud.png" alt="Banner" />
+
+
+
+
 ## Introduction to Cloud Computing
+
+
 
 Cloud computing is a modern approach to delivering IT resources over the internet. Instead of owning and maintaining physical infrastructure, organizations can access computing services on demand, paying only for what they use.
 
