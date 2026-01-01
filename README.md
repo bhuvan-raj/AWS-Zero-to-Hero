@@ -23,7 +23,7 @@ AWS Zero-to-Hero is a comprehensive learning repository that takes you from clou
 * **Description:** This section provides a detailed understanding of AWS Identity and Access Management (IAM), covering authentication and authorization concepts, IAM users, groups, roles, and policies. It explains how access to AWS resources is securely managed and how least-privilege principles are implemented in real-world AWS environments.
 * **Explore:** Navigate to [AWS Identity and Access Management](./AWS%20Identity%20and%20Access%20Management/) for detailed information.
    - [Introduction to AWS IAM](./AWS%20Identity%20and%20Access%20Management/Introduction%20to%20aws%20iam/)
-   - [Roles and Policies in IAM](./AWS%20Identity%20and%20Access%20Management/Roles%20and%20Policies%20in%20IAM)
-   - [Policy Evaluation and Cross Account Access](./Policy%20Evaluation%20&%20Cross%20Account%20Access)
+   - [Roles and Policies in IAM](./AWS%20Identity%20and%20Access%20Management/Roles%20and%20Policies%20in%20IAM/)
+   - [Policy Evaluation and Cross Account Access](./Policy%20Evaluation%20&%20Cross%20Account%20Access/)
 
 
