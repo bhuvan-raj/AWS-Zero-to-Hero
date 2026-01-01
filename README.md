@@ -24,6 +24,6 @@ AWS Zero-to-Hero is a comprehensive learning repository that takes you from clou
 * **Explore:** Navigate to [AWS Identity and Access Management](./AWS%20Identity%20and%20Access%20Management/) for detailed information.
    - [Introduction to AWS IAM](./AWS%20Identity%20and%20Access%20Management/Introduction%20to%20aws%20iam/)
    - [Roles and Policies in IAM](./AWS%20Identity%20and%20Access%20Management/Roles%20and%20Policies%20in%20IAM/)
-   - [Policy Evaluation and Cross Account Access](./Policy%20Evaluation%20&%20Cross%20Account%20Access/)
+   - [Policy Evaluation and Cross Account Access](./AWS%20Identity%20and%20Access%20Management/Policy%20Evaluation%20&%20Cross%20Account%20Access/)
 
 
