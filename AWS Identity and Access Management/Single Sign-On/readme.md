@@ -1,4 +1,5 @@
 ## 1. What is Single Sign-On (SSO)?
+<img src="https://github.com/bhuvan-raj/AWS-Zero-to-Hero/blob/main/assets/sso.png" alt="Banner" />
 
 **Single Sign-On (SSO)** is an authentication mechanism that allows a user to **log in once** and gain access to **multiple independent applications or services** without being required to authenticate again for each one.
 
@@ -131,6 +132,9 @@ Below is a **generic SSO flow** (IdP-initiated or SP-initiated, commonly SAML-ba
 ---
 
 ## 6. What is SSO in AWS?
+
+<img src="https://github.com/bhuvan-raj/AWS-Zero-to-Hero/blob/main/assets/aws-sso.png" alt="Banner" />
+
 
 In AWS, SSO is implemented using **AWS IAM Identity Center** (formerly called **AWS SSO**).
 
