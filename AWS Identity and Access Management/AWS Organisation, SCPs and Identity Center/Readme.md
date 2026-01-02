@@ -1,5 +1,7 @@
 
 ## 1. AWS Organizations
+<img src="https://github.com/bhuvan-raj/AWS-Zero-to-Hero/blob/main/assets/oa.png" alt="Banner" />
+
 
 ### 1.1 What is AWS Organizations?
 
@@ -92,6 +94,7 @@ This distinction is critical.
 ---
 
 ## 2. Service Control Policies (SCP)
+<img src="https://github.com/bhuvan-raj/AWS-Zero-to-Hero/blob/main/assets/scp.png" alt="Banner" />
 
 ### 2.1 What is an SCP?
 
@@ -193,6 +196,8 @@ If any layer denies → **Access Denied**
 ---
 
 ## 3. AWS IAM Identity Center (AWS SSO)
+<img src="https://github.com/bhuvan-raj/AWS-Zero-to-Hero/blob/main/assets/ic.png" alt="Banner" />
+
 
 ### 3.1 What is IAM Identity Center?
 
