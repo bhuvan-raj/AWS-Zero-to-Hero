@@ -111,11 +111,11 @@ An IAM identity can perform an action **only if ALL of the following allow it**:
 
 ---
 
-## 2. Lab 1 – Cross‑Access Simulation Within the Same AWS Account
+#  Lab 1 – Cross‑Access Simulation Within the Same AWS Account
 
 > Purpose: Understand **role assumption logic** without involving a second AWS account.
 
-### 2.1 Architecture
+###  Architecture
 
 * IAM User: `dev-user`
 * IAM Role: `s3-read-role`
@@ -125,13 +125,13 @@ User assumes a role **inside the same AWS account**.
 
 ---
 
-### 2.2 Step 1: Create S3 Bucket
+### Step 1: Create S3 Bucket
 
 * Create a bucket: `my-lab-bucket`
 
 ---
 
-### 2.3 Step 2: Create IAM Role
+###  Step 2: Create IAM Role
 
 **Role Name:** `s3-crossaccess`
 
@@ -154,7 +154,7 @@ User assumes a role **inside the same AWS account**.
 
 ---
 
-### 2.4 Step 3: Attach Permissions to Role
+###  Step 3: Attach Permissions to Role
 
 Attach `s3fullaccess` policy to `s3-read-role`:
 
@@ -162,7 +162,7 @@ Attach `s3fullaccess` policy to `s3-read-role`:
 
 ---
 
-### 2.5 Step 4: Allow User to Assume Role
+###  Step 4: Allow User to Assume Role
 
 Attach this policy to `dev-user`:
 
@@ -181,7 +181,7 @@ Attach this policy to `dev-user`:
 
 ---
 
-### 2.6 Step 5: Test Using AWS Management Console (GUI)
+###  Step 5: Test Using AWS Management Console (GUI)
 
 1. Sign in to AWS Console as **dev-user**
 2. Open **IAM → Roles → s3-read-role**
@@ -199,13 +199,13 @@ Attach this policy to `dev-user`:
 
 ---
 
-## 3. Lab 2 – Cross‑Account Access Using Two AWS Accounts
+## Lab 2 – Cross‑Account Access Using Two AWS Accounts
 
 > Purpose: Understand **real‑world cross‑account access** using trust policies and resource permissions.
 
 ---
 
-### 3.1 Architecture
+###  Architecture
 
 * **Account A** (Resource Owner)
 
@@ -218,7 +218,7 @@ Attach this policy to `dev-user`:
 
 ---
 
-### 3.2 Step 1: Create S3 Bucket in Account A
+###  Step 1: Create S3 Bucket in Account A
 
 Bucket Name: `cross-account-bucket`
 
@@ -226,7 +226,7 @@ Upload: `data.txt`
 
 ---
 
-### 3.3 Step 2: Create IAM Role in Account A
+###  Step 2: Create IAM Role in Account A
 
 **Role Name:** `cross-account-role`
 
@@ -249,7 +249,7 @@ Upload: `data.txt`
 
 ---
 
-### 3.4 Step 3: Attach Permissions to Role (Account A)
+###  Step 3: Attach Permissions to Role (Account A)
 
 ```json
 {
@@ -266,7 +266,7 @@ Upload: `data.txt`
 
 ---
 
-### 3.5 Step 4: Create IAM User in Account B
+###  Step 4: Create IAM User in Account B
 
 User Name: `external-user`
 
@@ -287,7 +287,7 @@ Attach policy:
 
 ---
 
-### 3.6 Step 5: Assume Role from Account B Using Console (GUI)
+###  Step 5: Assume Role from Account B Using Console (GUI)
 
 1. Sign in to **Account B** as `external-user`
 2. Open **IAM → Roles**
