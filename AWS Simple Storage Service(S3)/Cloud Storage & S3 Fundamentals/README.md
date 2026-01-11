@@ -1,6 +1,6 @@
 # Module 1: Cloud Storage & Amazon S3 Fundamentals
 
-## 1. What is Cloud Storage?
+##  What is Cloud Storage?
 
 Cloud Storage is a model of data storage where digital data is stored on **remote servers managed by a cloud provider** and accessed over the internet.
 
@@ -13,9 +13,9 @@ Cloud Storage is a model of data storage where digital data is stored on **remot
 
 ---
 
-## 2. Types of Cloud Storage
+##  Types of Cloud Storage
 
-### 2.1 Object Storage
+### 1. Object Storage
 - Data stored as objects
 - Each object contains:
   - Data
@@ -27,7 +27,7 @@ Cloud Storage is a model of data storage where digital data is stored on **remot
 
 ---
 
-### 2.2 Block Storage
+### 2. Block Storage
 - Data split into blocks
 - Attached to compute instances
 - Requires filesystem formatting
@@ -36,7 +36,7 @@ Cloud Storage is a model of data storage where digital data is stored on **remot
 
 ---
 
-### 2.3 File Storage
+### 3. File Storage
 - Data organized as files and folders
 - Supports shared access
 - Uses NFS/SMB protocols
@@ -45,7 +45,7 @@ Cloud Storage is a model of data storage where digital data is stored on **remot
 
 ---
 
-## 3. Object vs Block vs File Storage
+##  Object vs Block vs File Storage
 
 | Feature | Object (S3) | Block (EBS) | File (EFS) |
 |------|-----------|-----------|-----------|
@@ -56,7 +56,7 @@ Cloud Storage is a model of data storage where digital data is stored on **remot
 
 ---
 
-## 4. Introduction to Amazon S3
+##  Introduction to Amazon S3
 
 Amazon Simple Storage Service (Amazon S3) is a **highly scalable object storage service** designed for durability, security, and performance.
 
@@ -68,7 +68,7 @@ Amazon Simple Storage Service (Amazon S3) is a **highly scalable object storage 
 
 ---
 
-## 5. S3 Global Service vs Regional Buckets
+##  S3 Global Service vs Regional Buckets
 
 - Amazon S3 is a **global service**
 - Buckets are created in a **specific AWS region**
@@ -77,7 +77,7 @@ Amazon Simple Storage Service (Amazon S3) is a **highly scalable object storage 
 
 ---
 
-## 6. S3 Pricing Overview (High Level)
+##  S3 Pricing Overview (High Level)
 
 Pricing is based on:
 - Storage used per GB
@@ -87,7 +87,7 @@ Pricing is based on:
 
 ---
 
-## 7. What is an S3 Bucket?
+##  What is an S3 Bucket?
 
 An S3 bucket is a **logical container** used to store objects.
 
@@ -99,7 +99,123 @@ An S3 bucket is a **logical container** used to store objects.
 
 ---
 
-## 8. Hands-on Lab 1: Create an S3 Bucket Using AWS Console
+## Amazon S3 Bucket Naming Requisites
+
+### 1. Global Uniqueness
+
+* An S3 bucket name must be **globally unique across all AWS accounts and regions**
+* No two buckets anywhere in the world can have the same name
+
+---
+
+### 2. Length Requirements
+
+* Bucket name must be **between 3 and 63 characters**
+
+---
+
+### 3. Allowed Characters
+
+Bucket names may contain **only**:
+
+* Lowercase letters (`a–z`)
+* Numbers (`0–9`)
+* Hyphens (`-`)
+* Periods (`.`)
+
+---
+
+### 4. Disallowed Characters
+
+Bucket names **must NOT contain**:
+
+* Uppercase letters
+* Underscores (`_`)
+* Spaces
+* Special characters such as `@`, `#`, `$`, `%`, etc.
+
+---
+
+### 5. Must Start and End Correctly
+
+* Must **start and end with a letter or number**
+* Cannot start or end with:
+
+  * A hyphen (`-`)
+  * A period (`.`)
+
+---
+
+### 6. No Consecutive Periods
+
+* Bucket names **cannot contain two consecutive periods**
+
+  * ❌ `my..bucket`
+
+---
+
+### 7. No IP Address Format
+
+* Bucket names **must not resemble an IP address**
+
+  * ❌ `192.168.1.1`
+
+---
+
+### 8. DNS Compatibility
+
+* Bucket names must be **DNS-compliant**
+* This is required for:
+
+  * Virtual-hosted–style URLs
+  * HTTPS access
+
+---
+
+### 9. Restrictions with Periods (Important)
+
+* Buckets containing periods (`.`) **cannot be used with HTTPS** using wildcard SSL certificates
+* Best practice: **avoid periods** unless absolutely required
+
+---
+
+### 10. AWS Reserved Prefixes (Best Practice)
+
+Avoid starting bucket names with:
+
+* `aws`
+* `amazon`
+* `cloudfront`
+
+These may be restricted or cause conflicts.
+
+---
+
+## Valid Examples
+
+```
+my-app-bucket-2026
+company-logs-prod
+backup123
+images-bucket-ap-south-1
+```
+
+---
+
+## Invalid Examples
+
+```
+MyBucket              (uppercase letters)
+my_bucket             (underscore)
+my..bucket            (double periods)
+192.168.1.1           (IP format)
+-bucketname           (starts with hyphen)
+bucketname-           (ends with hyphen)
+```
+
+---
+
+##  Hands-on Lab 1: Create an S3 Bucket Using AWS Console
 
 ### Steps
 1. Login to AWS Management Console
