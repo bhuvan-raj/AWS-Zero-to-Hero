@@ -60,7 +60,7 @@ Cloud Storage is a model of data storage where digital data is stored on **remot
 
 ##  Introduction to Amazon S3
 
-<img src="https://github.com/bhuvan-raj/AWS-Zero-to-Hero/blob/main/assets/s3.jpg" alt="Banner" />
+<img src="https://github.com/bhuvan-raj/AWS-Zero-to-Hero/blob/main/assets/s3.png" alt="Banner" />
 
 Amazon Simple Storage Service (Amazon S3) is a **highly scalable object storage service** designed for durability, security, and performance.
 
