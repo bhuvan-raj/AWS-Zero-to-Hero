@@ -16,7 +16,7 @@ Cloud Storage is a model of data storage where digital data is stored on **remot
 ---
 
 ##  Types of Cloud Storage
-<img src="https://github.com/bhuvan-raj/AWS-Zero-to-Hero/blob/main/assets/compare.jpg" alt="Banner" />
+<img src="https://github.com/bhuvan-raj/AWS-Zero-to-Hero/blob/main/assets/compare.png" alt="Banner" />
 ### 1. Object Storage
 - Data stored as objects
 - Each object contains:
