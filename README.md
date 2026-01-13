@@ -33,6 +33,8 @@ AWS Zero-to-Hero is a comprehensive learning repository that takes you from clou
 * **Description:** This section provides a detailed understanding of Amazon Simple Storage Service (S3), covering core storage concepts such as buckets, objects, storage classes, and data durability. It explains how S3 is used to store, manage, secure, and retrieve data at scale, along with common real-world use cases like backups, static website hosting, and data lakes.
 * **Explore:** Navigate to [AWS Simple Storage Service](./AWS%20Simple%20Storage%20Service(S3)) for detailed information.
     - [Cloud Storage & S3 Fundamentals](./AWS%20Simple%20Storage%20Service(S3)/Cloud%20Storage%20&%20S3%20Fundamentals/)
+    - [S3 Bucket Types & Architecture](./AWS%20Simple%20Storage%20Service(S3)/S3%20Bucket%20Types%20&%20Architecture/)
+    -  [Objects, Storage Classes & Cost Optimization](./AWS%20Simple%20Storage%20Service(S3)/Objects,%20Storage%20Classes%20&%20Cost%20Optimization/)
 
 
 
