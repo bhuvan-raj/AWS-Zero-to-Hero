@@ -1,5 +1,3 @@
-
-
 # Encryption in AWS S3
 
 ---
