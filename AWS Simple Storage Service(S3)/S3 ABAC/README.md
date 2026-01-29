@@ -1,4 +1,4 @@
-# **Bucket ABAC in Amazon S3 **
+# Bucket ABAC in Amazon S3 
 
 ---
 
