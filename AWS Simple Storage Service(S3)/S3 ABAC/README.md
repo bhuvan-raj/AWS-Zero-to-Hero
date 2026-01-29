@@ -334,3 +334,284 @@ Enterprise-grade design.
 * Highly scalable
 * Recommended for large AWS environments
 * Best practice for modern IAM design
+* 
+
+
+
+
+# 🧪 LAB: Implement Bucket ABAC (Attribute-Based Access Control)
+
+---
+
+## 🎯 Objective
+
+To allow access to an S3 bucket **only when IAM principal tags match S3 bucket tags**, without specifying user or role ARNs in the bucket policy.
+
+---
+
+## 🧠 Concept Used
+
+* Attribute-Based Access Control (ABAC)
+* IAM Principal Tags
+* S3 Resource Tags
+* Bucket Policy Conditions
+
+---
+
+## 🏗 Architecture
+
+```
+IAM User (tagged)
+        │
+        ▼
+   Bucket Policy
+        │
+        ▼
+S3 Bucket (tagged)
+```
+
+Access is allowed **only if tags match**.
+
+---
+
+## 🔧 Pre-requisites
+
+* AWS account
+* IAM user with:
+
+  * Programmatic access
+  * Console access
+* AWS-managed policies only
+
+---
+
+# 🔹 LAB DETAILS
+
+| Component  | Value           |
+| ---------- | --------------- |
+| IAM User   | abac-user       |
+| IAM Tag    | Project = dev   |
+| S3 Bucket  | abac-dev-bucket |
+| Bucket Tag | Project = dev   |
+
+---
+
+# STEP 1 — Create IAM User
+
+1. Go to **IAM → Users**
+2. Click **Create user**
+3. User name:
+
+   ```
+   abac-user
+   ```
+4. Enable:
+
+   * AWS Management Console access
+5. Click **Next**
+
+---
+
+## Attach policy
+
+Attach AWS managed policy:
+
+```
+AmazonS3ReadOnlyAccess
+```
+
+(Used only to test; bucket policy will enforce ABAC.)
+
+Click **Next → Create user**
+
+---
+
+# STEP 2 — Add TAG to IAM User
+
+1. Open **IAM → Users → abac-user**
+2. Go to **Tags tab**
+3. Click **Add tag**
+
+```
+Key   : Project
+Value : dev
+```
+
+Save.
+
+✅ IAM principal now has an attribute.
+
+---
+
+# STEP 3 — Create S3 Bucket
+
+1. Go to **S3**
+2. Click **Create bucket**
+
+```
+Bucket name: abac-dev-bucket
+Region: ap-south-1
+```
+
+3. Keep **Block all public access ON**
+4. Create bucket
+
+---
+
+# STEP 4 — Add TAG to S3 Bucket
+
+1. Open the bucket
+2. Go to **Properties**
+3. Scroll to **Tags**
+4. Add tag:
+
+```
+Key   : Project
+Value : dev
+```
+
+Save.
+
+---
+
+# STEP 5 — Add Bucket Policy (ABAC Policy)
+
+1. Go to **Permissions tab**
+2. Open **Bucket policy**
+3. Paste the following policy:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "BucketABACAccess",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": [
+        "s3:GetObject",
+        "s3:ListBucket"
+      ],
+      "Resource": [
+        "arn:aws:s3:::abac-dev-bucket",
+        "arn:aws:s3:::abac-dev-bucket/*"
+      ],
+      "Condition": {
+        "StringEquals": {
+          "aws:PrincipalTag/Project": "${s3:ResourceTag/Project}"
+        }
+      }
+    }
+  ]
+}
+```
+
+Save policy.
+
+---
+
+# 🔥 What this policy means
+
+AWS evaluates:
+
+```
+IAM User Tag      → Project = dev
+Bucket Tag        → Project = dev
+Condition         → MATCH
+```
+
+✅ Access allowed.
+
+No user ARN is mentioned anywhere.
+
+---
+
+# STEP 6 — Test Access (Positive Case)
+
+1. Log in as **abac-user**
+2. Open **S3**
+3. Click bucket **abac-dev-bucket**
+
+✅ You can:
+
+* List bucket
+* Download objects
+
+---
+
+# STEP 7 — Negative Test (Mismatch)
+
+## Change IAM tag
+
+IAM → Users → abac-user → Tags
+
+Change:
+
+```
+Project = prod
+```
+
+---
+
+## Test again
+
+Try opening the bucket.
+
+❌ Result:
+
+```
+Access Denied
+```
+
+No policy changes were made.
+
+Only tag changed.
+
+---
+
+# ✅ This confirms ABAC is working
+
+Access is **fully controlled by tags**.
+
+---
+
+# 🧠 Key Observations
+
+| Action           | Result         |
+| ---------------- | -------------- |
+| Tag match        | Access allowed |
+| Tag mismatch     | Access denied  |
+| No ARN in policy | Yes            |
+| Scalable         | Yes            |
+| Dynamic          | Yes            |
+
+---
+
+# 🔐 Important Notes
+
+* Tag keys are **case-sensitive**
+* Principal tags work for:
+
+  * IAM users
+  * IAM roles
+* Bucket policy is mandatory
+* Tags alone do nothing without policy logic
+
+---
+
+# 🧠 Interview-ready explanation
+
+> Bucket ABAC uses IAM principal tags and S3 resource tags.
+> Access is granted dynamically when tag values match, without hard-coding users or roles in bucket policies.
+
+---
+
+# ✅ Real-world usage
+
+* Multi-team environments
+* Dev / Test / Prod isolation
+* SaaS tenant separation
+* CI/CD role-based bucket access
+* Large enterprise AWS accounts
+
+---
