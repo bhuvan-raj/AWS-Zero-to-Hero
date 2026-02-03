@@ -92,3 +92,44 @@ A **Default VPC** is an automatically created VPC by AWS for every region.
 * **NACL:** Default NACL allows all inbound and outbound traffic
 * **Public IP:** EC2 instances get public IP by default
 
+## Components automatically created when we create a VPC
+
+When you create a Virtual Private Cloud (VPC) in AWS, it doesn't just create an empty shell. To ensure the network is functional and manageable from the start, AWS automatically provisions several "default" components.
+
+## 1. Default Route Table
+
+Every VPC must have a route table to direct network traffic. Upon creation, AWS generates a **Main Route Table**.
+
+* **Purpose:** It acts as the default routing logic for any subnet you create later that isn't explicitly associated with a different route table.
+* **Initial Rule:** It comes with a single "local" route that allows communication between all resources within the VPC CIDR block.
+
+## 2. Default Network ACL (NACL)
+
+A Network Access Control List (NACL) is an optional layer of security for your VPC that acts as a firewall for controlling traffic in and out of one or more subnets.
+
+* **Default Behavior:** Unlike custom NACLs which deny all traffic by default, the **Default NACL** is configured to **allow all inbound and outbound traffic**.
+* **Scope:** It is automatically applied to any new subnet you create unless you specify otherwise.
+
+## 3. Default Security Group
+
+A security group acts as a virtual firewall for your instances (at the ENI level).
+
+* **Inbound Rules:** It allows all traffic from resources that are assigned to the **same security group**.
+* **Outbound Rules:** It allows all outbound traffic to any destination.
+* **Note:** If you launch an instance and don't specify a security group, this default one is automatically attached to it.
+
+## 4. Main DHCP Options Set
+
+To ensure your instances can communicate over the network using domain names, AWS creates and associates a DHCP (Dynamic Host Configuration Protocol) options set.
+
+* **Function:** This provides instances with configurations like domain name servers (AmazonProvidedDNS), domain names, and NTP servers.
+
+---
+
+### What is NOT created automatically?
+
+It is just as important to know what you have to build yourself. When you create a VPC via the API or "VPC Only" console option, the following are **missing**:
+
+* **Subnets:** You must define your own public or private subnets.
+* **Internet Gateway (IGW):** Your VPC has no internet access by default.
+* **NAT Gateways:** Required if you want private subnets to reach the internet.
