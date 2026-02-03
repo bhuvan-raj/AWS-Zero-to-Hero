@@ -1,4 +1,6 @@
 # AWS VPC
+<img src="https://github.com/bhuvan-raj/AWS-Zero-to-Hero/blob/main/assets/vpc.png" alt="Banner" />
+
 ## What is a VPC?
 
 A **Virtual Private Cloud (VPC)** is a **logically isolated virtual network** within the AWS cloud where you can launch and manage AWS resources securely.
