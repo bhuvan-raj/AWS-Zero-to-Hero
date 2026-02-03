@@ -1,5 +1,5 @@
 # AWS VPC
-<img src="https://github.com/bhuvan-raj/AWS-Zero-to-Hero/blob/main/assets/" alt="Banner" />
+<img src="https://github.com/bhuvan-raj/AWS-Zero-to-Hero/blob/main/assets/vpc.png" alt="Banner" />
 
 ## What is a VPC?
 
