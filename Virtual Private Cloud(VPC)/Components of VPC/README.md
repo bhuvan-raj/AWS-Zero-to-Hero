@@ -17,6 +17,8 @@ A VPC closely resembles a traditional on-premises network but with cloud scalabi
 ---
 
 ## 2. Subnet in AWS VPC
+<img src="https://github.com/bhuvan-raj/AWS-Zero-to-Hero/blob/main/assets/subnet.png" alt="Banner" />
+
 
 ### What is a Subnet?
 
@@ -99,6 +101,7 @@ Internet access (outbound only) is possible via **NAT Gateway**.
 ---
 
 ## 3. Route Table
+<img src="https://github.com/bhuvan-raj/AWS-Zero-to-Hero/blob/main/assets/rt.png" alt="Banner" />
 
 ### What is a Route Table?
 
