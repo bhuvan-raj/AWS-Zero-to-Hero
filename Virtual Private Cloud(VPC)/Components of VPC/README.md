@@ -1,5 +1,5 @@
 
-# AWS VPC – Components (In-Depth)
+# AWS VPC – Components 
 
 ## 1. What is an AWS VPC?
 
