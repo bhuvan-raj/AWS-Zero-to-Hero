@@ -52,6 +52,7 @@ AWS Zero-to-Hero is a comprehensive learning repository that takes you from clou
 * **Explore:** Navigate to [AWS Virtual Private Cloud](./Virtual%20Private%20Cloud(VPC)) for detailed information.
   
      - [Introduction to AWS VPC](./Virtual%20Private%20Cloud(VPC)/Introduction%20to%20VPC/)
+     - [Components of VPC](./Virtual%20Private%20Cloud(VPC)/Components%20of%20VPC/)
 
 
 
