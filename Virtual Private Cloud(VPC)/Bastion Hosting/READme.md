@@ -201,7 +201,7 @@ Name: `private-server`
 
 ---
 
-# 🔑 Step 4: Connect to Bastion Host
+# 🔑 Step 3: Connect to Bastion Host
 
 From your local machine:
 
@@ -211,7 +211,7 @@ ssh -i your-key.pem ec2-user@<Bastion-Public-IP>
 
 ---
 
-# 🔁 Step 5: Connect to Private EC2 from Bastion
+# 🔁 Step 4: Connect to Private EC2 from Bastion
 
 Inside bastion:
 
@@ -235,7 +235,7 @@ ssh -i your-key.pem ec2-user@<Private-EC2-Private-IP>
 
 ---
 
-# 🌍 Step 6: Check Internet Connectivity from Private EC2
+# 🌍 Step 5: Check Internet Connectivity from Private EC2
 
 Now from the **private instance**, test outbound connectivity:
 
