@@ -1,5 +1,7 @@
 
-# Bastion Hosting — Comprehensive Notes
+# Bastion Hosting
+<img src="https://github.com/bhuvan-raj/AWS-Zero-to-Hero/blob/main/assets/bh.png" alt="Banner" />
+
 
 ## 1. What Is a Bastion Host?
 
