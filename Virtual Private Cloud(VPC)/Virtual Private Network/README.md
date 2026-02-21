@@ -1,4 +1,4 @@
-# 1️⃣ What is AWS VPC VPN?
+# What is AWS VPC VPN?
 
 In Amazon Web Services, a **Site-to-Site VPN** connects your on-premises data center to a VPC securely using IPsec encryption.
 
@@ -10,7 +10,7 @@ It allows:
 
 ---
 
-# 2️⃣ Types of AWS VPN
+# Types of AWS VPN
 
 ## 🔹 1. Site-to-Site VPN
 
@@ -22,24 +22,24 @@ Allows individual users to connect securely to AWS.
 
 ---
 
-# 3️⃣ Core Components of Site-to-Site VPN
+# Core Components of Site-to-Site VPN
 
 ![Image](https://docs.aws.amazon.com/images/whitepapers/latest/aws-vpc-connectivity-options/images/redundant-aws-site-to-site-vpn-connections.png)
 
 ### Components:
 
-## 1️⃣ Virtual Private Gateway (VGW)
+##  Virtual Private Gateway (VGW)
 
 AWS-side VPN endpoint attached to VPC.
 
-## 2️⃣ Customer Gateway (CGW)
+##  Customer Gateway (CGW)
 
 Represents your on-premises router/firewall.
 
 * Public IP required
 * Static or dynamic routing
 
-## 3️⃣ VPN Connection
+##  VPN Connection
 
 Logical connection between VGW and CGW.
 Includes:
@@ -48,7 +48,7 @@ Includes:
 
 ---
 
-# 4️⃣ How It Works (Technical Flow)
+#  How It Works (Technical Flow)
 
 1. IPsec tunnel established between CGW and VGW
 2. IKE (Internet Key Exchange) negotiates keys
@@ -64,7 +64,7 @@ Encryption:
 
 ---
 
-# 5️⃣ Routing Types
+#  Routing Types
 
 ## 🔹 Static Routing
 
@@ -87,7 +87,7 @@ Advantages:
 
 ---
 
-# 6️⃣ High Availability
+# High Availability
 
 Each VPN connection creates:
 
@@ -99,7 +99,7 @@ Traffic automatically shifts to second.
 
 ---
 
-# 7️⃣ Implementation Steps (High-Level)
+# Implementation Steps (High-Level)
 
 ### Step 1: Create VPC
 
@@ -152,7 +152,7 @@ Direct Connect + VPN backup.
 
 ---
 
-# 9️⃣ VPN with Transit Gateway
+#  VPN with Transit Gateway
 
 Instead of VGW, you can use:
 
@@ -168,7 +168,7 @@ Best for large enterprises.
 
 ---
 
-# 🔟 Security Considerations
+# Security Considerations
 
 ✔ Uses IPsec encryption
 ✔ Supports Perfect Forward Secrecy
@@ -184,7 +184,7 @@ Best Practices:
 
 ---
 
-# 1️⃣1️⃣ Limitations
+#  Limitations
 
 * Internet-based (latency variability)
 * Throughput limits (~1.25 Gbps per tunnel)
@@ -193,7 +193,7 @@ Best Practices:
 
 ---
 
-# 1️⃣2️⃣ Monitoring & Troubleshooting
+#  Monitoring & Troubleshooting
 
 Check:
 
@@ -211,7 +211,7 @@ Common Issues:
 
 ---
 
-# 1️⃣3️⃣ Real-World Use Cases
+#  Real-World Use Cases
 
 ✅ Hybrid cloud migration
 ✅ Disaster recovery
