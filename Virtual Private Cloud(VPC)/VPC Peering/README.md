@@ -192,5 +192,191 @@ Primary region ↔ DR region
 * Scaling complexity
 * Cannot reference SG across regions (only same region)
 
+# 🧪 LAB: VPC Peering (Same Region, Same Account)
+
+## 🎯 Objective
+
+Establish private communication between two VPCs using VPC Peering.
+
+### Network Plan
+
+| Resource | CIDR           |
+| -------- | -------------- |
+| VPC-A    | 10.0.0.0/16    |
+| Subnet-A | 10.0.1.0/24    |
+| VPC-B    | 192.168.0.0/16 |
+| Subnet-B | 192.168.1.0/24 |
+
+Region: Same region (example: ap-south-1)
+
+---
+
+# 2️⃣ Step 1 – Create VPC-A
+
+1. Go to **VPC → Create VPC**
+2. Name: VPC-A
+3. CIDR: 10.0.0.0/16
+4. Create Subnet:
+
+   * CIDR: 10.0.1.0/24
+5. Create Internet Gateway (optional for SSH)
+6. Attach IGW to VPC-A
+7. Update Route Table:
+
+   * 0.0.0.0/0 → IGW
+
+---
+
+# 3️⃣ Step 2 – Launch EC2 in VPC-A
+
+Use:
+
+* Amazon Web Services EC2
+* Amazon Linux AMI
+* Subnet: 10.0.1.0/24
+* Enable auto-assign public IP (for SSH testing)
+
+Security Group:
+
+* Allow SSH (22) from your IP
+* Allow ICMP from 192.168.0.0/16
+
+---
+
+# 4️⃣ Step 3 – Create VPC-B
+
+1. Create VPC
+
+   * Name: VPC-B
+   * CIDR: 192.168.0.0/16
+2. Create Subnet:
+
+   * CIDR: 192.168.1.0/24
+3. Create Internet Gateway (optional)
+4. Attach IGW
+5. Add route: 0.0.0.0/0 → IGW
+
+---
+
+# 5️⃣ Step 4 – Launch EC2 in VPC-B
+
+* Same AMI
+* Subnet: 192.168.1.0/24
+* Public IP enabled
+
+Security Group:
+
+* Allow SSH from your IP
+* Allow ICMP from 10.0.0.0/16
+
+---
+
+# 6️⃣ Step 5 – Create VPC Peering Connection
+
+1. Go to **VPC → Peering Connections**
+2. Click Create Peering
+3. Requester VPC → VPC-A
+4. Accepter VPC → VPC-B
+5. Create
+
+Now:
+
+* Select Peering
+* Click **Actions → Accept Request**
+
+Status should become **Active**
+
+---
+
+# 7️⃣ Step 6 – Update Route Tables (Very Important)
+
+### In VPC-A Route Table
+
+Add:
+
+| Destination    | Target   |
+| -------------- | -------- |
+| 192.168.0.0/16 | pcx-xxxx |
+
+---
+
+### In VPC-B Route Table
+
+Add:
+
+| Destination | Target   |
+| ----------- | -------- |
+| 10.0.0.0/16 | pcx-xxxx |
+
+Without this step, traffic will not flow.
+
+---
+
+# 8️⃣ Step 7 – Verify Security Groups
+
+Ensure:
+
+VPC-A EC2:
+
+* Inbound → ICMP → Source: 192.168.0.0/16
+
+VPC-B EC2:
+
+* Inbound → ICMP → Source: 10.0.0.0/16
+
+---
+
+# 9️⃣ Step 8 – Test Connectivity
+
+SSH into EC2-A.
+
+Run:
+
+```bash
+ping <Private-IP-of-EC2-B>
+```
+
+Expected:
+Ping successful.
+
+Then test reverse direction.
+
+---
+
+# 🔎 Troubleshooting Checklist
+
+If ping fails:
+
+✔ Check route table
+✔ Check security group
+✔ Check NACL
+✔ Confirm peering status = Active
+✔ Confirm CIDR does not overlap
+
+---
+
+# 📌 Important Observations
+
+1. No transitive routing
+2. No sharing of Internet Gateway
+3. Manual route configuration required
+4. CIDR blocks must not overlap
+
+---
+
+# 🔬 Optional Advanced Testing
+
+### Test Port Connectivity
+
+From EC2-A:
+
+```bash
+nc -zv <Private-IP> 22
+```
+
+### Enable VPC Flow Logs
+
+To monitor traffic:
+VPC → Flow Logs → Create Flow Log
 
 ---
