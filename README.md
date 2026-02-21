@@ -55,6 +55,8 @@ AWS Zero-to-Hero is a comprehensive learning repository that takes you from clou
      - [Components of VPC](./Virtual%20Private%20Cloud(VPC)/Components%20of%20VPC/)
      - [Bastion Hosting and Private Subnet Internet Checking](./Virtual%20Private%20Cloud(VPC)/Bastion%20Hosting/)
      - [Security Group vs Nacl ](./Virtual%20Private%20Cloud(VPC)/NACL%20vs%20Security%20Groups/)
+     - [VPC Peering ](./Virtual%20Private%20Cloud(VPC)/VPC%20Peering/)
+
 
 
 
