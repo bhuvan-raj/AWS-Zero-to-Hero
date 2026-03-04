@@ -128,6 +128,7 @@ This section provides a detailed understanding of Amazon VPC — how to design, 
 | 6.8 | [VPC Endpoints](./Virtual%20Private%20Cloud(VPC)/VPC-Endpoint/) | Private access to AWS services without internet or NAT — Gateway and Interface endpoints |
 | 6.9 | [DNS Firewall](./Virtual%20Private%20Cloud(VPC)/DNS-Firewall/) | Filtering outbound DNS queries to block malicious and unauthorized domains |
 | 6.10| [VPC FLOWLOG](./Virtual%20Private%20Cloud(VPC)/VPC-FlowLog/) | Creation and Accessing logs of network traffic to and from the VPC |
+| 6.11| [VPC PrivateLink and Lattice](./Virtual%20Private%20Cloud(VPC)/VPC%20PrivateLink%20&%20Lattice/) | Explaining the different methods of private communications - Lattice and PrivateLink|
 
 ---
 
