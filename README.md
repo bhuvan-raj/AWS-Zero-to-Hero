@@ -36,17 +36,6 @@ By the end of this course, you will be able to:
 
 ## 📚 Table of Contents
 
-| # | Topic | Description |
-|---|-------|-------------|
-| 01 | [Introduction to Cloud Computing](#1-introduction-to-cloud-computing) | Cloud fundamentals, characteristics, benefits, and service models |
-| 02 | [Cloud Deployment and Service Models](#2-cloud-deployment-and-service-models) | Public, Private, Hybrid cloud + IaaS, PaaS, SaaS |
-| 03 | [Introduction to AWS](#3-introduction-to-aws) | AWS global infrastructure, Regions, AZs, and core services overview |
-| 04 | [AWS Identity and Access Management (IAM)](#4-aws-identity-and-access-management-iam) | Users, groups, roles, policies, Organizations, SSO, and cross-account access |
-| 05 | [AWS Simple Storage Service (S3)](#5-aws-simple-storage-service-s3) | Buckets, objects, storage classes, encryption, replication, and lifecycle |
-| 06 | [AWS Virtual Private Cloud (VPC)](#6-aws-virtual-private-cloud-vpc) | Subnets, route tables, gateways, peering, Transit Gateway, endpoints, DNS Firewall |
-
----
-
 ## 1. Introduction to Cloud Computing
 
 This section introduces the fundamentals of cloud computing — what it is, why it exists, and how it differs from traditional on-premises IT infrastructure. It covers key characteristics, business benefits, and real-world use cases that form the foundation for understanding modern cloud platforms like AWS.
