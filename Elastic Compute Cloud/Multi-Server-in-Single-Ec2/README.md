@@ -2,7 +2,7 @@
 
 
 ## Create a Private IP
-1. Go to ENI
+1. Go to Instance List
 2. Select the server attached ENI - Actions - Manage IP address - Add IP address
 3. Click on Save ( it will automatically add a secondary private ip for that eni
 
