@@ -2,9 +2,10 @@
 
 
 ## Create a Private IP
-1. Go to Instance List
-2. Select the server attached ENI - Actions - Manage IP address - Add IP address
-3. Click on Save ( it will automatically add a secondary private ip for that eni
+1. Go to **Instance List**
+2. Select the server - Networking - Scroll down and you will see the eni - Select the ENI from Network Interface list
+3. Actions- MAnage IP address - Select the eni information - Assign New IP address (No need to give IP address)
+4. Click on Save ( it will automatically add a secondary private ip for that eni
 
 ## Create a Elastic IP
 
