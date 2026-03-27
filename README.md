@@ -138,6 +138,8 @@ This section covers Amazon EC2 — the backbone of AWS compute. You'll learn how
 | 7.8 | [Webservers](./Elastic%20Compute%20Cloud/Webservers/) | Installing and configuring web servers (Apache/Nginx) on EC2 instances |
 | 7.9 | [Multi-Website in Single Ec2](./Elastic%20Compute%20Cloud/Multi-Server-in-Single-Ec2/) | Installing and configuring Multiple websites in  a single ec2 machine using multiple ips|
 | 8.0 | [ssh-keygen](./Elastic%20Compute%20Cloud/ssh-keygen/) | Generating New key-pair incase we lose private key in our machine|
+| 8.1 | [LoadBalancers](./Elastic%20Compute%20Cloud/Loadbalancer/) | Introduction to loadbalancers , Loadbalancing Algorithms and Types of Loadbalancers in aws|
+| 8.2 | [Network LoadBalancer -Handson](./Elastic%20Compute%20Cloud/NLB/) | Lab demonstrating the Network Loadbalancer setup|
 
 ---
 
