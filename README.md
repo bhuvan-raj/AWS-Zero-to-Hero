@@ -140,7 +140,9 @@ This section covers Amazon EC2 — the backbone of AWS compute. You'll learn how
 | 8.0 | [ssh-keygen](./Elastic%20Compute%20Cloud/ssh-keygen/) | Generating New key-pair incase we lose private key in our machine|
 | 8.1 | [LoadBalancers](./Elastic%20Compute%20Cloud/Loadbalancer/) | Introduction to loadbalancers , Loadbalancing Algorithms and Types of Loadbalancers in aws|
 | 8.2 | [Network LoadBalancer -Handson](./Elastic%20Compute%20Cloud/NLB/) | Lab demonstrating the Network Loadbalancer setup|
-| 8.2 | [Application-LoadBalancer -Handson](./Elastic%20Compute%20Cloud/Application-LoadBalancer/) | Lab demonstrating the Application Loadbalancer setup|
+| 8.3 | [Application-LoadBalancer -Handson](./Elastic%20Compute%20Cloud/Application-LoadBalancer/) | Lab demonstrating the Application Loadbalancer setup|
+| 8.4 | [Introduction to Autoscaling](./Elastic%20Compute%20Cloud/ASG/) | Introduction to autoscaling and scaling policies|
+| 8.5 | [AutoScaling-Hands-on](./Elastic%20Compute%20Cloud/Auto-Scaling-Hands-on/) |Hands-on Lab on autoscaling in aws|
 ---
 
 
