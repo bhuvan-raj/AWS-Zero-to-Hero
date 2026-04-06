@@ -143,6 +143,7 @@ This section covers Amazon EC2 — the backbone of AWS compute. You'll learn how
 | 8.3 | [Application-LoadBalancer -Handson](./Elastic%20Compute%20Cloud/Application-LoadBalancer/) | Lab demonstrating the Application Loadbalancer setup|
 | 8.4 | [Introduction to Autoscaling](./Elastic%20Compute%20Cloud/ASG/) | Introduction to autoscaling and scaling policies|
 | 8.5 | [AutoScaling-Hands-on](./Elastic%20Compute%20Cloud/Auto-Scaling-Hands-on/) |Hands-on Lab on autoscaling in aws|
+| 8.5 | [Autoscaling+SNS+S3](./Elastic%20Compute%20Cloud/Autoscaling+SNS+S3/) |Hands-on Lab on Autoscaling+SNS+S3|
 ---
 
 
