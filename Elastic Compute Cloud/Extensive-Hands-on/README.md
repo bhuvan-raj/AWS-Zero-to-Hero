@@ -1,6 +1,6 @@
 
 # 🚀 Hands-On Lab: Production-Grade Application Hosting on AWS
-### Console (GUI) Edition
+
 
 A comprehensive, step-by-step lab for deploying a highly available, scalable, and secure web application on AWS — done entirely through the **AWS Management Console**.
 
