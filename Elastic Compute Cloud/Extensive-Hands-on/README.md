@@ -1,6 +1,8 @@
-# 🚀 Hands-On Lab: Production-Grade Application Hosting on AWS
 
-A comprehensive, end-to-end lab for deploying a highly available, scalable, and secure web application on AWS using industry best practices.
+# 🚀 Hands-On Lab: Production-Grade Application Hosting on AWS
+### Console (GUI) Edition
+
+A comprehensive, step-by-step lab for deploying a highly available, scalable, and secure web application on AWS — done entirely through the **AWS Management Console**.
 
 ---
 
@@ -9,19 +11,12 @@ A comprehensive, end-to-end lab for deploying a highly available, scalable, and 
 | Field | Details |
 |---|---|
 | **Difficulty** | Intermediate – Advanced |
-| **AWS Region** | `us-east-1` (N. Virginia) |
-| **Architecture** | Multi-AZ, Auto Scaling, Load Balanced |
+| **Estimated Time** | 5 – 7 hours |
+| **AWS Region** | `us-east-1` (N. Virginia) — use this throughout |
+| **Cost Estimate** | ~$0.50 – $2.00 for the duration of the lab |
+| **Approach** | 100% AWS Management Console (GUI) |
 
-### What You'll Build
-
-A production-like, highly available web application stack with:
-
-- A hardened **VPC** spanning two Availability Zones with public and private subnets
-- **IAM** roles, policies, permission boundaries, and an instance profile
-- An **Application Load Balancer** terminating HTTP traffic
-- An **Auto Scaling Group** launching EC2 instances in private subnets
-- An **S3 bucket** with bucket policies, versioning, and lifecycle rules serving static assets
-- **Security Groups** at every layer enforcing least-privilege network access
+### Architecture You'll Build
 
 ```
                         ┌──────────────────────────────────────────────────────────────┐
@@ -47,99 +42,27 @@ Internet ──► IGW ──►    │  ┌──── Public Subnet AZ-A ─�
 ```
 
 ---
-
-## 🎯 Learning Objectives
-
-By the end of this lab you will be able to:
-
-- Design and implement a multi-AZ VPC with public and private subnet tiers
-- Author IAM policies using least-privilege principles, attach permission boundaries, and use instance profiles
-- Write and attach S3 bucket policies, enable versioning, and configure lifecycle rules
-- Deploy and configure an Application Load Balancer with listener rules and health checks
-- Create a Launch Template and configure an Auto Scaling Group with scaling policies
-- Understand how all these services integrate into a resilient production architecture
-
----
-
 ## ✅ Prerequisites
 
-- An AWS account with administrator access ([sign up here](https://aws.amazon.com/free/))
-- AWS CLI v2 installed and configured (`aws configure`)
-- Basic familiarity with Linux CLI and JSON
-- An SSH client (Terminal on macOS/Linux, Windows Terminal on Windows)
-
-```bash
-# Verify your CLI is set up correctly
-aws sts get-caller-identity
-```
+- An AWS account ([sign up](https://aws.amazon.com/free/))
+- A modern browser (Chrome or Firefox recommended)
+- Log in to the [AWS Management Console](https://console.aws.amazon.com)
+- **Always confirm you are in `us-east-1` (N. Virginia)** — check the region dropdown in the top-right corner before every module
 
 ---
 
-## 🔐 Module 1: IAM – Identity and Access Management
+## 🔐 Module 1: IAM — Identity and Access Management
 
-**Goal:** Create a least-privilege IAM role for EC2 instances, a deployment user, and a permission boundary.
+> **Navigate to:** Console → Search bar → type `IAM` → click **IAM**
 
-### Step 1.1 – Create the EC2 Instance Role Policy Document
+---
 
-This policy grants EC2 instances read access to S3 and the ability to write CloudWatch logs.
+### Step 1.1 — Create a Permission Boundary Policy
 
-Create a file named `ec2-policy.json`:
+A permission boundary sets the maximum permissions a role can ever have, even if broader policies are attached later.
 
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "S3ReadStaticAssets",
-      "Effect": "Allow",
-      "Action": [
-        "s3:GetObject",
-        "s3:ListBucket"
-      ],
-      "Resource": [
-        "arn:aws:s3:::lab-assets-*",
-        "arn:aws:s3:::lab-assets-*/*"
-      ]
-    },
-    {
-      "Sid": "CloudWatchLogs",
-      "Effect": "Allow",
-      "Action": [
-        "logs:CreateLogGroup",
-        "logs:CreateLogStream",
-        "logs:PutLogEvents",
-        "logs:DescribeLogStreams"
-      ],
-      "Resource": "arn:aws:logs:*:*:*"
-    },
-    {
-      "Sid": "SSMSessionManager",
-      "Effect": "Allow",
-      "Action": [
-        "ssm:UpdateInstanceInformation",
-        "ssmmessages:CreateControlChannel",
-        "ssmmessages:CreateDataChannel",
-        "ssmmessages:OpenControlChannel",
-        "ssmmessages:OpenDataChannel"
-      ],
-      "Resource": "*"
-    }
-  ]
-}
-```
-
-```bash
-# Create the IAM policy
-aws iam create-policy \
-  --policy-name lab-ec2-instance-policy \
-  --policy-document file://ec2-policy.json
-```
-
-### Step 1.2 – Create a Permission Boundary
-
-A permission boundary caps the maximum permissions any role can have. Even if a misconfiguration grants broader access, the boundary enforces the ceiling.
-
-Create `permission-boundary.json`:
+1. In the IAM left sidebar, click **Policies** → **Create policy**
+2. Click the **JSON** tab and paste:
 
 ```json
 {
@@ -170,297 +93,336 @@ Create `permission-boundary.json`:
 }
 ```
 
-```bash
-aws iam create-policy \
-  --policy-name lab-ec2-permission-boundary \
-  --policy-document file://permission-boundary.json
-```
+3. Click **Next** → **Next**
+4. Policy name: `lab-ec2-permission-boundary`
+5. Click **Create policy**
 
-### Step 1.3 – Create the EC2 IAM Role with Trust Policy
+---
 
-Create `ec2-trust-policy.json`:
+### Step 1.2 — Create the EC2 Instance Policy
+
+1. Click **Policies** → **Create policy** → **JSON** tab and paste:
 
 ```json
 {
   "Version": "2012-10-17",
   "Statement": [
     {
+      "Sid": "S3ReadStaticAssets",
       "Effect": "Allow",
-      "Principal": {
-        "Service": "ec2.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
+      "Action": ["s3:GetObject", "s3:ListBucket"],
+      "Resource": [
+        "arn:aws:s3:::lab-assets-*",
+        "arn:aws:s3:::lab-assets-*/*"
+      ]
+    },
+    {
+      "Sid": "CloudWatchLogs",
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Resource": "arn:aws:logs:*:*:*"
+    },
+    {
+      "Sid": "SSMSessionManager",
+      "Effect": "Allow",
+      "Action": [
+        "ssm:UpdateInstanceInformation",
+        "ssmmessages:CreateControlChannel",
+        "ssmmessages:CreateDataChannel",
+        "ssmmessages:OpenControlChannel",
+        "ssmmessages:OpenDataChannel"
+      ],
+      "Resource": "*"
     }
   ]
 }
 ```
 
-```bash
-# Get your AWS account ID
-ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-
-# Create the role with the permission boundary
-aws iam create-role \
-  --role-name lab-ec2-instance-role \
-  --assume-role-policy-document file://ec2-trust-policy.json \
-  --permissions-boundary arn:aws:iam::${ACCOUNT_ID}:policy/lab-ec2-permission-boundary
-
-# Attach the instance policy to the role
-aws iam attach-role-policy \
-  --role-name lab-ec2-instance-role \
-  --policy-arn arn:aws:iam::${ACCOUNT_ID}:policy/lab-ec2-instance-policy
-
-# Create an instance profile and add the role to it
-aws iam create-instance-profile --instance-profile-name lab-ec2-profile
-aws iam add-role-to-instance-profile \
-  --instance-profile-name lab-ec2-profile \
-  --role-name lab-ec2-instance-role
-```
-
-### Step 1.4 – Create a Lab Deployment IAM User
-
-```bash
-# Create user
-aws iam create-user --user-name lab-deploy-user
-
-# Create a group with scoped deploy permissions
-aws iam create-group --group-name lab-deploy-group
-
-# Attach policies to the group
-aws iam attach-group-policy \
-  --group-name lab-deploy-group \
-  --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAccess
-
-aws iam attach-group-policy \
-  --group-name lab-deploy-group \
-  --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess
-
-aws iam attach-group-policy \
-  --group-name lab-deploy-group \
-  --policy-arn arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
-
-aws iam attach-group-policy \
-  --group-name lab-deploy-group \
-  --policy-arn arn:aws:iam::aws:policy/AutoScalingFullAccess
-
-# Add user to group
-aws iam add-user-to-group \
-  --user-name lab-deploy-user \
-  --group-name lab-deploy-group
-
-# Generate access keys for CLI use
-aws iam create-access-key --user-name lab-deploy-user
-```
-
-> **💡 Best Practice:** Save the `AccessKeyId` and `SecretAccessKey` output securely. You cannot retrieve the secret key again. In real environments, prefer IAM Identity Center (SSO) over long-term access keys.
+2. Click **Next** → **Next**
+3. Policy name: `lab-ec2-instance-policy`
+4. Click **Create policy**
 
 ---
 
-## 🌐 Module 2: VPC – Virtual Private Cloud
+### Step 1.3 — Create the EC2 IAM Role
 
-**Goal:** Build a multi-AZ VPC with public and private subnets, NAT Gateways, and a strict security group hierarchy.
+1. In the left sidebar, click **Roles** → **Create role**
+2. Trusted entity type: **AWS service**
+3. Use case: **EC2** → click **Next**
+4. In the search box, find and check `lab-ec2-instance-policy` → click **Next**
+5. Role name: `lab-ec2-instance-role`
+6. Click **Create role**
 
-### Step 2.1 – Create the VPC
+**Attach the permission boundary:**
 
-```bash
-# Create the VPC
-VPC_ID=$(aws ec2 create-vpc \
-  --cidr-block 10.0.0.0/16 \
-  --query 'Vpc.VpcId' \
-  --output text)
+7. From the Roles list, click `lab-ec2-instance-role`
+8. Click the **Permissions** tab → click **Set permissions boundary**
+9. Select **Use a permissions boundary to control the maximum role permissions**
+10. Search for and select `lab-ec2-permission-boundary`
+11. Click **Set boundary**
 
-# Enable DNS hostnames (required for ALB and SSM)
-aws ec2 modify-vpc-attribute --vpc-id $VPC_ID --enable-dns-hostnames
-aws ec2 modify-vpc-attribute --vpc-id $VPC_ID --enable-dns-support
-
-# Tag it
-aws ec2 create-tags --resources $VPC_ID --tags Key=Name,Value=lab-vpc
-
-echo "VPC ID: $VPC_ID"
-```
-
-### Step 2.2 – Create Subnets (2 Public, 2 Private)
-
-```bash
-# Public Subnet – AZ A
-PUB_SUB_A=$(aws ec2 create-subnet \
-  --vpc-id $VPC_ID \
-  --cidr-block 10.0.1.0/24 \
-  --availability-zone us-east-1a \
-  --query 'Subnet.SubnetId' --output text)
-aws ec2 create-tags --resources $PUB_SUB_A --tags Key=Name,Value=lab-public-subnet-a
-
-# Public Subnet – AZ B
-PUB_SUB_B=$(aws ec2 create-subnet \
-  --vpc-id $VPC_ID \
-  --cidr-block 10.0.2.0/24 \
-  --availability-zone us-east-1b \
-  --query 'Subnet.SubnetId' --output text)
-aws ec2 create-tags --resources $PUB_SUB_B --tags Key=Name,Value=lab-public-subnet-b
-
-# Private Subnet – AZ A
-PRIV_SUB_A=$(aws ec2 create-subnet \
-  --vpc-id $VPC_ID \
-  --cidr-block 10.0.3.0/24 \
-  --availability-zone us-east-1a \
-  --query 'Subnet.SubnetId' --output text)
-aws ec2 create-tags --resources $PRIV_SUB_A --tags Key=Name,Value=lab-private-subnet-a
-
-# Private Subnet – AZ B
-PRIV_SUB_B=$(aws ec2 create-subnet \
-  --vpc-id $VPC_ID \
-  --cidr-block 10.0.4.0/24 \
-  --availability-zone us-east-1b \
-  --query 'Subnet.SubnetId' --output text)
-aws ec2 create-tags --resources $PRIV_SUB_B --tags Key=Name,Value=lab-private-subnet-b
-
-# Enable auto-assign public IP on public subnets only
-aws ec2 modify-subnet-attribute --subnet-id $PUB_SUB_A --map-public-ip-on-launch
-aws ec2 modify-subnet-attribute --subnet-id $PUB_SUB_B --map-public-ip-on-launch
-```
-
-### Step 2.3 – Internet Gateway
-
-```bash
-IGW_ID=$(aws ec2 create-internet-gateway \
-  --query 'InternetGateway.InternetGatewayId' --output text)
-aws ec2 attach-internet-gateway --internet-gateway-id $IGW_ID --vpc-id $VPC_ID
-aws ec2 create-tags --resources $IGW_ID --tags Key=Name,Value=lab-igw
-```
-
-### Step 2.4 – NAT Gateways (One Per AZ for High Availability)
-
-NAT Gateways allow instances in private subnets to reach the internet (e.g., for package updates) without being publicly reachable.
-
-```bash
-# Allocate Elastic IPs for NAT Gateways
-EIP_A=$(aws ec2 allocate-address --domain vpc --query 'AllocationId' --output text)
-EIP_B=$(aws ec2 allocate-address --domain vpc --query 'AllocationId' --output text)
-
-# Create NAT Gateways in the PUBLIC subnets
-NAT_A=$(aws ec2 create-nat-gateway \
-  --subnet-id $PUB_SUB_A \
-  --allocation-id $EIP_A \
-  --query 'NatGateway.NatGatewayId' --output text)
-aws ec2 create-tags --resources $NAT_A --tags Key=Name,Value=lab-nat-a
-
-NAT_B=$(aws ec2 create-nat-gateway \
-  --subnet-id $PUB_SUB_B \
-  --allocation-id $EIP_B \
-  --query 'NatGateway.NatGatewayId' --output text)
-aws ec2 create-tags --resources $NAT_B --tags Key=Name,Value=lab-nat-b
-
-echo "Waiting for NAT Gateways to become available (~60s)..."
-aws ec2 wait nat-gateway-available --nat-gateway-ids $NAT_A $NAT_B
-echo "NAT Gateways ready."
-```
-
-### Step 2.5 – Route Tables
-
-```bash
-# --- Public Route Table ---
-PUB_RTB=$(aws ec2 create-route-table --vpc-id $VPC_ID \
-  --query 'RouteTable.RouteTableId' --output text)
-aws ec2 create-tags --resources $PUB_RTB --tags Key=Name,Value=lab-public-rtb
-# Route to internet
-aws ec2 create-route --route-table-id $PUB_RTB \
-  --destination-cidr-block 0.0.0.0/0 --gateway-id $IGW_ID
-# Associate both public subnets
-aws ec2 associate-route-table --route-table-id $PUB_RTB --subnet-id $PUB_SUB_A
-aws ec2 associate-route-table --route-table-id $PUB_RTB --subnet-id $PUB_SUB_B
-
-# --- Private Route Table AZ-A ---
-PRIV_RTB_A=$(aws ec2 create-route-table --vpc-id $VPC_ID \
-  --query 'RouteTable.RouteTableId' --output text)
-aws ec2 create-tags --resources $PRIV_RTB_A --tags Key=Name,Value=lab-private-rtb-a
-aws ec2 create-route --route-table-id $PRIV_RTB_A \
-  --destination-cidr-block 0.0.0.0/0 --nat-gateway-id $NAT_A
-aws ec2 associate-route-table --route-table-id $PRIV_RTB_A --subnet-id $PRIV_SUB_A
-
-# --- Private Route Table AZ-B ---
-PRIV_RTB_B=$(aws ec2 create-route-table --vpc-id $VPC_ID \
-  --query 'RouteTable.RouteTableId' --output text)
-aws ec2 create-tags --resources $PRIV_RTB_B --tags Key=Name,Value=lab-private-rtb-b
-aws ec2 create-route --route-table-id $PRIV_RTB_B \
-  --destination-cidr-block 0.0.0.0/0 --nat-gateway-id $NAT_B
-aws ec2 associate-route-table --route-table-id $PRIV_RTB_B --subnet-id $PRIV_SUB_B
-```
-
-### Step 2.6 – Security Groups
-
-We create two security groups that enforce a strict traffic flow: Internet → ALB → EC2. Direct internet access to EC2 is blocked.
-
-```bash
-# --- ALB Security Group ---
-ALB_SG=$(aws ec2 create-security-group \
-  --group-name lab-alb-sg \
-  --description "Allow HTTP from internet to ALB" \
-  --vpc-id $VPC_ID \
-  --query 'GroupId' --output text)
-aws ec2 authorize-security-group-ingress \
-  --group-id $ALB_SG \
-  --protocol tcp --port 80 --cidr 0.0.0.0/0
-aws ec2 authorize-security-group-ingress \
-  --group-id $ALB_SG \
-  --protocol tcp --port 443 --cidr 0.0.0.0/0
-aws ec2 create-tags --resources $ALB_SG --tags Key=Name,Value=lab-alb-sg
-
-# --- EC2 Security Group ---
-# Only allows traffic from the ALB security group — not from the internet directly
-EC2_SG=$(aws ec2 create-security-group \
-  --group-name lab-ec2-sg \
-  --description "Allow HTTP only from ALB security group" \
-  --vpc-id $VPC_ID \
-  --query 'GroupId' --output text)
-aws ec2 authorize-security-group-ingress \
-  --group-id $EC2_SG \
-  --protocol tcp --port 80 \
-  --source-group $ALB_SG
-aws ec2 create-tags --resources $EC2_SG --tags Key=Name,Value=lab-ec2-sg
-```
-
-> **🔒 Security Note:** EC2 instances have no public IP and no direct internet ingress. All web traffic flows exclusively through the ALB. SSH access is replaced by AWS Systems Manager Session Manager, eliminating the need to open port 22 entirely.
+> **💡 Key Concept:** The permission boundary doesn't grant permissions — it caps them. The role can only ever do what is in BOTH the attached policy AND the boundary.
 
 ---
 
-## 🪣 Module 3: S3 – Static Assets Bucket
+### Step 1.4 — Create a Lab Deploy User and Group
 
-**Goal:** Create a secure S3 bucket with a bucket policy, versioning, lifecycle rules, and encryption.
+1. Left sidebar → **User groups** → **Create group**
+2. Group name: `lab-deploy-group`
+3. Attach these managed policies:
+   - `AmazonEC2FullAccess`
+   - `AmazonS3FullAccess`
+   - `ElasticLoadBalancingFullAccess`
+   - `AutoScalingFullAccess`
+4. Click **Create group**
 
-### Step 3.1 – Create the S3 Bucket
+**Create the user:**
 
-```bash
-BUCKET_NAME="lab-assets-$(aws sts get-caller-identity --query Account --output text)"
-echo "Bucket name: $BUCKET_NAME"
+5. Left sidebar → **Users** → **Create user**
+6. Username: `lab-deploy-user`
+7. Check **Provide user access to the AWS Management Console** → set a password
+8. Click **Next** → select **Add user to group** → select `lab-deploy-group`
+9. Click **Next** → **Create user**
+10. Download the credentials CSV and store it safely
 
-aws s3api create-bucket \
-  --bucket $BUCKET_NAME \
-  --region us-east-1
-```
+---
 
-### Step 3.2 – Enable Versioning
+## 🌐 Module 2: VPC — Virtual Private Cloud
 
-Versioning protects against accidental deletion and enables rollback of assets.
+> **Navigate to:** Console → Search bar → `VPC` → click **VPC**
 
-```bash
-aws s3api put-bucket-versioning \
-  --bucket $BUCKET_NAME \
-  --versioning-configuration Status=Enabled
-```
+---
 
-### Step 3.3 – Block All Public Access
+### Step 2.1 — Create the VPC
 
-```bash
-aws s3api put-public-access-block \
-  --bucket $BUCKET_NAME \
-  --public-access-block-configuration \
-    BlockPublicAcls=true,IgnorePublicAcls=true,\
-    BlockPublicPolicy=true,RestrictPublicBuckets=true
-```
+1. Left sidebar → **Your VPCs** → **Create VPC**
+2. Select **VPC only**
+3. Fill in:
+   | Field | Value |
+   |---|---|
+   | Name tag | `lab-vpc` |
+   | IPv4 CIDR | `10.0.0.0/16` |
+   | Tenancy | Default |
+4. Click **Create VPC**
 
-### Step 3.4 – Apply a Bucket Policy
+**Enable DNS settings:**
 
-The bucket policy explicitly allows only the EC2 instance role to read objects. All other principals are denied. Create `bucket-policy.json`, replacing `ACCOUNT_ID` and `BUCKET_NAME` with your values:
+5. Select `lab-vpc` → click **Actions** → **Edit VPC settings**
+6. Check both:
+   - ✅ Enable DNS hostnames
+   - ✅ Enable DNS resolution
+7. Click **Save**
+
+---
+
+### Step 2.2 — Create Four Subnets
+
+Go to **Subnets** → **Create subnet** → select `lab-vpc`. Create all four:
+
+**Public Subnet — AZ A**
+| Field | Value |
+|---|---|
+| Subnet name | `lab-public-subnet-a` |
+| Availability Zone | `us-east-1a` |
+| IPv4 CIDR | `10.0.1.0/24` |
+
+**Public Subnet — AZ B**
+| Field | Value |
+|---|---|
+| Subnet name | `lab-public-subnet-b` |
+| Availability Zone | `us-east-1b` |
+| IPv4 CIDR | `10.0.2.0/24` |
+
+**Private Subnet — AZ A**
+| Field | Value |
+|---|---|
+| Subnet name | `lab-private-subnet-a` |
+| Availability Zone | `us-east-1a` |
+| IPv4 CIDR | `10.0.3.0/24` |
+
+**Private Subnet — AZ B**
+| Field | Value |
+|---|---|
+| Subnet name | `lab-private-subnet-b` |
+| Availability Zone | `us-east-1b` |
+| IPv4 CIDR | `10.0.4.0/24` |
+
+**Enable auto-assign public IP on both public subnets:**
+
+For each of `lab-public-subnet-a` and `lab-public-subnet-b`:
+1. Select the subnet → **Actions** → **Edit subnet settings**
+2. Check ✅ **Enable auto-assign public IPv4 address**
+3. Click **Save**
+
+---
+
+### Step 2.3 — Create and Attach an Internet Gateway
+
+1. Left sidebar → **Internet gateways** → **Create internet gateway**
+2. Name: `lab-igw` → **Create internet gateway**
+3. Select `lab-igw` → **Actions** → **Attach to VPC** → select `lab-vpc` → **Attach**
+
+---
+
+### Step 2.4 — Create NAT Gateways (One Per AZ)
+
+NAT Gateways let private subnet instances reach the internet for updates without being publicly accessible.
+
+**NAT Gateway for AZ-A:**
+
+1. Left sidebar → **NAT gateways** → **Create NAT gateway**
+2. Fill in:
+   | Field | Value |
+   |---|---|
+   | Name | `lab-nat-a` |
+   | Subnet | `lab-public-subnet-a` |
+   | Connectivity type | Public |
+3. Click **Allocate Elastic IP** → then **Create NAT gateway**
+
+**NAT Gateway for AZ-B:**
+
+4. Click **Create NAT gateway** again
+5. Fill in:
+   | Field | Value |
+   |---|---|
+   | Name | `lab-nat-b` |
+   | Subnet | `lab-public-subnet-b` |
+   | Connectivity type | Public |
+6. Click **Allocate Elastic IP** → then **Create NAT gateway**
+
+⏳ Wait for both NAT Gateways to show **Available** status before continuing (~2 minutes).
+
+---
+
+### Step 2.5 — Create Route Tables
+
+**Public Route Table:**
+
+1. Left sidebar → **Route tables** → **Create route table**
+2. Name: `lab-public-rtb` | VPC: `lab-vpc` → **Create**
+3. Select `lab-public-rtb` → **Routes** tab → **Edit routes** → **Add route**:
+   - Destination: `0.0.0.0/0` | Target: `lab-igw`
+4. Click **Save changes**
+5. **Subnet associations** tab → **Edit subnet associations** → select both public subnets → **Save**
+
+**Private Route Table — AZ-A:**
+
+6. Create route table: name `lab-private-rtb-a` | VPC: `lab-vpc`
+7. **Routes** → **Edit routes** → **Add route**:
+   - Destination: `0.0.0.0/0` | Target: `lab-nat-a`
+8. **Subnet associations** → select `lab-private-subnet-a` → **Save**
+
+**Private Route Table — AZ-B:**
+
+9. Create route table: name `lab-private-rtb-b` | VPC: `lab-vpc`
+10. **Routes** → **Edit routes** → **Add route**:
+    - Destination: `0.0.0.0/0` | Target: `lab-nat-b`
+11. **Subnet associations** → select `lab-private-subnet-b` → **Save**
+
+---
+
+### Step 2.6 — Create Security Groups
+
+> **Navigate to:** VPC → **Security groups**
+
+**ALB Security Group:**
+
+1. **Create security group**
+   | Field | Value |
+   |---|---|
+   | Name | `lab-alb-sg` |
+   | Description | Allow HTTP and HTTPS from internet |
+   | VPC | `lab-vpc` |
+2. **Inbound rules** → **Add rule** twice:
+   | Type | Protocol | Port | Source |
+   |---|---|---|---|
+   | HTTP | TCP | 80 | `0.0.0.0/0` |
+   | HTTPS | TCP | 443 | `0.0.0.0/0` |
+3. Click **Create security group**
+
+**EC2 Security Group:**
+
+4. **Create security group**
+   | Field | Value |
+   |---|---|
+   | Name | `lab-ec2-sg` |
+   | Description | Allow HTTP from ALB only |
+   | VPC | `lab-vpc` |
+5. **Inbound rules** → **Add rule**:
+   | Type | Protocol | Port | Source |
+   |---|---|---|---|
+   | HTTP | TCP | 80 | Custom → select `lab-alb-sg` |
+6. Click **Create security group**
+
+> **🔒 Security Note:** By using the ALB security group as the source (not a CIDR block), you ensure EC2 instances only accept traffic that has passed through the ALB — even if someone discovers a private IP, they can't reach the instance directly.
+
+---
+
+## 🪣 Module 3: S3 — Static Assets Bucket
+
+> **Navigate to:** Console → Search bar → `S3` → click **S3**
+
+---
+
+### Step 3.1 — Create the Bucket
+
+1. Click **Create bucket**
+2. Fill in:
+   | Field | Value |
+   |---|---|
+   | Bucket name | `lab-assets-YOUR-ACCOUNT-ID` (replace with your 12-digit account ID) |
+   | AWS Region | `us-east-1` |
+3. Under **Block Public Access settings** — leave all four checkboxes ✅ checked (default)
+4. Click **Create bucket**
+
+> **📌 Tip:** Find your Account ID in the top-right of the console (click your username).
+
+---
+
+### Step 3.2 — Enable Versioning
+
+1. Open the bucket → **Properties** tab
+2. Scroll to **Bucket Versioning** → click **Edit**
+3. Select **Enable** → **Save changes**
+
+---
+
+### Step 3.3 — Enable Server-Side Encryption
+
+1. **Properties** tab → scroll to **Default encryption** → **Edit**
+2. Encryption type: **Server-side encryption with Amazon S3 managed keys (SSE-S3)**
+3. Bucket key: **Enable**
+4. Click **Save changes**
+
+---
+
+### Step 3.4 — Create a Lifecycle Rule
+
+1. **Management** tab → **Create lifecycle rule**
+2. Fill in:
+   | Field | Value |
+   |---|---|
+   | Rule name | `transition-old-versions` |
+   | Rule scope | Apply to all objects |
+3. Check ✅ **Transition noncurrent versions of objects between storage classes**
+   - Storage class: **Standard-IA**
+   - Days after objects become noncurrent: `30`
+4. Check ✅ **Permanently delete noncurrent versions of objects**
+   - Days after objects become noncurrent: `90`
+5. Check ✅ **Delete expired object delete markers or incomplete multipart uploads**
+   - Select **Delete incomplete multipart uploads** → Days: `7`
+6. Click **Create rule**
+
+---
+
+### Step 3.5 — Apply a Bucket Policy
+
+1. **Permissions** tab → scroll to **Bucket policy** → **Edit**
+2. Paste the policy below, replacing `YOUR-ACCOUNT-ID` and `YOUR-BUCKET-NAME`:
 
 ```json
 {
@@ -470,15 +432,12 @@ The bucket policy explicitly allows only the EC2 instance role to read objects. 
       "Sid": "AllowEC2RoleAccess",
       "Effect": "Allow",
       "Principal": {
-        "AWS": "arn:aws:iam::ACCOUNT_ID:role/lab-ec2-instance-role"
+        "AWS": "arn:aws:iam::YOUR-ACCOUNT-ID:role/lab-ec2-instance-role"
       },
-      "Action": [
-        "s3:GetObject",
-        "s3:ListBucket"
-      ],
+      "Action": ["s3:GetObject", "s3:ListBucket"],
       "Resource": [
-        "arn:aws:s3:::BUCKET_NAME",
-        "arn:aws:s3:::BUCKET_NAME/*"
+        "arn:aws:s3:::YOUR-BUCKET-NAME",
+        "arn:aws:s3:::YOUR-BUCKET-NAME/*"
       ]
     },
     {
@@ -487,14 +446,14 @@ The bucket policy explicitly allows only the EC2 instance role to read objects. 
       "Principal": "*",
       "Action": "s3:*",
       "Resource": [
-        "arn:aws:s3:::BUCKET_NAME",
-        "arn:aws:s3:::BUCKET_NAME/*"
+        "arn:aws:s3:::YOUR-BUCKET-NAME",
+        "arn:aws:s3:::YOUR-BUCKET-NAME/*"
       ],
       "Condition": {
         "StringNotLike": {
           "aws:PrincipalArn": [
-            "arn:aws:iam::ACCOUNT_ID:role/lab-ec2-instance-role",
-            "arn:aws:iam::ACCOUNT_ID:root"
+            "arn:aws:iam::YOUR-ACCOUNT-ID:role/lab-ec2-instance-role",
+            "arn:aws:iam::YOUR-ACCOUNT-ID:root"
           ]
         }
       }
@@ -503,231 +462,198 @@ The bucket policy explicitly allows only the EC2 instance role to read objects. 
 }
 ```
 
-```bash
-# Apply the bucket policy (after editing the JSON with your Account ID and Bucket Name)
-aws s3api put-bucket-policy \
-  --bucket $BUCKET_NAME \
-  --policy file://bucket-policy.json
-```
+3. Click **Save changes**
 
-> **💡 Key Concept:** Bucket policies are resource-based policies attached directly to the bucket. The `Deny` statement with a `StringNotLike` condition creates an explicit deny for all principals except the EC2 role and the root account — explicit denies always override allows in IAM evaluation logic.
+> **💡 Key Concept:** The `Deny` statement with `StringNotLike` creates an explicit deny for every principal EXCEPT the EC2 role and root. In IAM, explicit denies always override allows.
 
-### Step 3.5 – Configure Lifecycle Rules
+---
 
-Automatically transition old asset versions to cheaper storage and expire them after 90 days.
+### Step 3.6 — Upload Sample Assets
 
-Create `lifecycle.json`:
+1. In your bucket, click **Upload** → **Add files**
+2. Create a file named `styles.css` on your computer with this content, then upload it:
 
-```json
-{
-  "Rules": [
-    {
-      "ID": "transition-old-versions",
-      "Status": "Enabled",
-      "Filter": { "Prefix": "" },
-      "NoncurrentVersionTransitions": [
-        {
-          "NoncurrentDays": 30,
-          "StorageClass": "STANDARD_IA"
-        }
-      ],
-      "NoncurrentVersionExpiration": {
-        "NoncurrentDays": 90
-      }
-    },
-    {
-      "ID": "expire-incomplete-multipart",
-      "Status": "Enabled",
-      "Filter": { "Prefix": "" },
-      "AbortIncompleteMultipartUpload": {
-        "DaysAfterInitiation": 7
-      }
-    }
-  ]
+```css
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f4f4;
+  text-align: center;
+  padding: 40px;
 }
-```
-
-```bash
-aws s3api put-bucket-lifecycle-configuration \
-  --bucket $BUCKET_NAME \
-  --lifecycle-configuration file://lifecycle.json
-```
-
-### Step 3.6 – Enable Server-Side Encryption
-
-```bash
-aws s3api put-bucket-encryption \
-  --bucket $BUCKET_NAME \
-  --server-side-encryption-configuration '{
-    "Rules": [{
-      "ApplyServerSideEncryptionByDefault": {
-        "SSEAlgorithm": "AES256"
-      },
-      "BucketKeyEnabled": true
-    }]
-  }'
-```
-
-### Step 3.7 – Upload Sample Assets
-
-```bash
-# Create a sample CSS file
-cat <<EOF > styles.css
-body { font-family: Arial, sans-serif; background: #f4f4f4; text-align: center; padding: 40px; }
 h1 { color: #FF9900; }
-EOF
-
-# Upload with correct content type and cache headers
-aws s3 cp styles.css s3://$BUCKET_NAME/assets/styles.css \
-  --content-type "text/css" \
-  --cache-control "max-age=86400"
-
-echo "Assets uploaded to s3://$BUCKET_NAME/assets/"
+p { color: #333; }
 ```
+
+3. After selecting the file, expand **Additional upload options**
+   - Content type: `text/css`
+   - Cache control: `max-age=86400`
+4. Click **Upload**
+5. Once uploaded, move it into a folder: select the file → **Actions** → **Move** → destination: `assets/styles.css` inside the same bucket
 
 ---
 
 ## ⚖️ Module 4: Application Load Balancer
 
-**Goal:** Deploy an ALB in public subnets that distributes traffic to EC2 instances in private subnets.
+> **Navigate to:** Console → `EC2` → left sidebar → **Load Balancers**
 
-### Step 4.1 – Create the ALB
+---
 
-```bash
-ALB_ARN=$(aws elbv2 create-load-balancer \
-  --name lab-alb \
-  --subnets $PUB_SUB_A $PUB_SUB_B \
-  --security-groups $ALB_SG \
-  --scheme internet-facing \
-  --type application \
-  --ip-address-type ipv4 \
-  --query 'LoadBalancers[0].LoadBalancerArn' \
-  --output text)
+### Step 4.1 — Create the Target Group First
 
-echo "ALB ARN: $ALB_ARN"
+1. Left sidebar → **Target Groups** → **Create target group**
+2. Fill in:
+   | Field | Value |
+   |---|---|
+   | Target type | Instances |
+   | Target group name | `lab-target-group` |
+   | Protocol | HTTP |
+   | Port | 80 |
+   | VPC | `lab-vpc` |
+3. Under **Health checks**:
+   | Field | Value |
+   |---|---|
+   | Health check path | `/health` |
+   | Healthy threshold | 2 |
+   | Unhealthy threshold | 3 |
+   | Timeout | 5 seconds |
+   | Interval | 30 seconds |
+   | Success codes | 200 |
+4. Click **Next** → skip registering targets for now → **Create target group**
 
-# Get the ALB DNS name for testing later
-ALB_DNS=$(aws elbv2 describe-load-balancers \
-  --load-balancer-arns $ALB_ARN \
-  --query 'LoadBalancers[0].DNSName' \
-  --output text)
+---
 
-echo "ALB DNS: $ALB_DNS"
-```
+### Step 4.2 — Create the Application Load Balancer
 
-### Step 4.2 – Create a Target Group
+1. Left sidebar → **Load Balancers** → **Create load balancer**
+2. Select **Application Load Balancer** → **Create**
+3. Fill in the **Basic configuration**:
+   | Field | Value |
+   |---|---|
+   | Name | `lab-alb` |
+   | Scheme | Internet-facing |
+   | IP address type | IPv4 |
 
-The Target Group defines how the ALB performs health checks and routes traffic to EC2 instances.
+4. **Network mapping:**
+   - VPC: `lab-vpc`
+   - Mappings: check both `us-east-1a` → select `lab-public-subnet-a` and `us-east-1b` → select `lab-public-subnet-b`
 
-```bash
-TG_ARN=$(aws elbv2 create-target-group \
-  --name lab-target-group \
-  --protocol HTTP \
-  --port 80 \
-  --vpc-id $VPC_ID \
-  --target-type instance \
-  --health-check-protocol HTTP \
-  --health-check-path /health \
-  --health-check-interval-seconds 30 \
-  --health-check-timeout-seconds 5 \
-  --healthy-threshold-count 2 \
-  --unhealthy-threshold-count 3 \
-  --matcher HttpCode=200 \
-  --query 'TargetGroups[0].TargetGroupArn' \
-  --output text)
+5. **Security groups:** remove the default, select `lab-alb-sg`
 
-echo "Target Group ARN: $TG_ARN"
-```
+6. **Listeners and routing:**
+   - Protocol: HTTP | Port: 80
+   - Default action: Forward to → `lab-target-group`
 
-### Step 4.3 – Create a Listener with Routing Rules
+7. Click **Create load balancer**
 
-```bash
-# Create HTTP listener on port 80
-LISTENER_ARN=$(aws elbv2 create-listener \
-  --load-balancer-arn $ALB_ARN \
-  --protocol HTTP \
-  --port 80 \
-  --default-actions Type=forward,TargetGroupArn=$TG_ARN \
-  --query 'Listeners[0].ListenerArn' \
-  --output text)
+8. Once created, note the **DNS name** (e.g., `lab-alb-123456.us-east-1.elb.amazonaws.com`) — you'll use this for testing.
 
-echo "Listener ARN: $LISTENER_ARN"
-```
+---
 
-### Step 4.4 – Add a Custom Listener Rule
+### Step 4.3 — Add a Custom Listener Rule for /health
 
-This rule returns a fixed `200 OK` for `/health` at the ALB level, independent of instance health.
-
-```bash
-aws elbv2 create-rule \
-  --listener-arn $LISTENER_ARN \
-  --priority 10 \
-  --conditions '[{"Field":"path-pattern","Values":["/health"]}]' \
-  --actions '[{"Type":"fixed-response","FixedResponseConfig":{"StatusCode":"200","ContentType":"text/plain","MessageBody":"OK"}}]'
-```
-
-> **💡 Production Note:** In a real environment, attach an ACM TLS certificate and create an HTTPS listener on port 443. Then add a redirect rule on port 80 that sends all HTTP traffic to HTTPS with a 301 status code.
+1. Click on `lab-alb` → **Listeners** tab → click on the **HTTP:80** listener
+2. Click **Add rule** → **Add rule**
+3. Name: `health-check-rule`
+4. Click **Add condition** → **Path** → `/health` → confirm
+5. Click **Add action** → **Return fixed response**
+   - Response code: `200`
+   - Content-Type: `text/plain`
+   - Response body: `OK`
+6. Priority: `1` → **Create**
 
 ---
 
 ## 📦 Module 5: EC2 Launch Template
 
-**Goal:** Create a reusable, versioned Launch Template that the Auto Scaling Group will use to provision instances.
+> **Navigate to:** Console → `EC2` → left sidebar → **Launch Templates**
 
-### Step 5.1 – Create a Key Pair (Optional — SSM is preferred)
+---
 
-```bash
-aws ec2 create-key-pair \
-  --key-name lab-key-pair \
-  --query 'KeyMaterial' \
-  --output text > lab-key-pair.pem
+### Step 5.1 — Create a Key Pair (Optional)
 
-chmod 400 lab-key-pair.pem
-```
+> Skip this if you plan to use SSM Session Manager only (recommended).
 
-### Step 5.2 – Fetch the Latest Amazon Linux 2023 AMI
+1. Left sidebar → **Key Pairs** → **Create key pair**
+2. Name: `lab-key-pair` | Format: `.pem` (Mac/Linux) or `.ppk` (Windows)
+3. Click **Create key pair** — the file downloads automatically. Store it safely.
 
-```bash
-AMI_ID=$(aws ec2 describe-images \
-  --owners amazon \
-  --filters 'Name=name,Values=al2023-ami-*-x86_64' \
-            'Name=state,Values=available' \
-  --query 'sort_by(Images, &CreationDate)[-1].ImageId' \
-  --output text)
+---
 
-echo "Latest AMI: $AMI_ID"
-```
+### Step 5.2 — Create the Launch Template
 
-### Step 5.3 – Write the User Data Script
+1. Left sidebar → **Launch Templates** → **Create launch template**
 
-Save this as `userdata.sh`:
+**Template settings:**
+| Field | Value |
+|---|---|
+| Launch template name | `lab-launch-template` |
+| Template version description | `v1-initial` |
+
+**Application and OS Images:**
+1. Click **Browse more AMIs** → search `Amazon Linux 2023`
+2. Select the latest **Amazon Linux 2023 AMI** (64-bit x86) → **Select**
+
+**Instance type:** `t3.micro`
+
+**Key pair:** Select `lab-key-pair` (or **Don't include in launch template** if using SSM)
+
+**Network settings:**
+- Don't include a subnet (ASG will choose)
+- Security groups: select `lab-ec2-sg`
+
+**Advanced details — IAM instance profile:**
+- IAM instance profile: `lab-ec2-profile`
+
+  > If you don't see this, go back to IAM → Instance Profiles and confirm the profile was created in Step 1.3.
+
+**Advanced details — Metadata (IMDSv2):**
+- Metadata accessible: **Enabled**
+- Metadata version: **V2 only (token required)**
+- Allowed hop limit: `1`
+
+**Advanced details — Detailed CloudWatch monitoring:** **Enable**
+
+**Advanced details — User data:**
+
+Paste the following script exactly:
 
 ```bash
 #!/bin/bash
 set -e
 yum update -y
-yum install -y httpd aws-cli
+yum install -y httpd
 
-# Start Apache
 systemctl start httpd
 systemctl enable httpd
 
 # Health check endpoint
 echo "OK" > /var/www/html/health
 
-# Pull static assets from S3
-ACCOUNT_ID=$(curl -s http://169.254.169.254/latest/dynamic/instance-identity/document \
-  | python3 -c 'import sys,json; print(json.load(sys.stdin)["accountId"])')
+# Get instance metadata
+INSTANCE_ID=$(TOKEN=$(curl -s -X PUT "http://169.254.169.254/latest/api/token" \
+  -H "X-aws-ec2-metadata-token-ttl-seconds: 21600") && \
+  curl -s -H "X-aws-ec2-metadata-token: $TOKEN" \
+  http://169.254.169.254/latest/meta-data/instance-id)
+
+AZ=$(TOKEN=$(curl -s -X PUT "http://169.254.169.254/latest/api/token" \
+  -H "X-aws-ec2-metadata-token-ttl-seconds: 21600") && \
+  curl -s -H "X-aws-ec2-metadata-token: $TOKEN" \
+  http://169.254.169.254/latest/meta-data/placement/availability-zone)
+
+ACCOUNT_ID=$(TOKEN=$(curl -s -X PUT "http://169.254.169.254/latest/api/token" \
+  -H "X-aws-ec2-metadata-token-ttl-seconds: 21600") && \
+  curl -s -H "X-aws-ec2-metadata-token: $TOKEN" \
+  http://169.254.169.254/latest/dynamic/instance-identity/document | \
+  python3 -c 'import sys,json; print(json.load(sys.stdin)["accountId"])')
+
 BUCKET_NAME="lab-assets-${ACCOUNT_ID}"
 
+# Pull static assets from S3
 mkdir -p /var/www/html/assets
-aws s3 cp s3://${BUCKET_NAME}/assets/styles.css /var/www/html/assets/styles.css || true
+aws s3 cp s3://${BUCKET_NAME}/assets/styles.css /var/www/html/assets/styles.css \
+  --region us-east-1 || true
 
-# Retrieve instance metadata
-INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
-AZ=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone)
-
-# Deploy the app page
+# Write the app page
 cat <<EOF > /var/www/html/index.html
 <!DOCTYPE html>
 <html>
@@ -736,409 +662,292 @@ cat <<EOF > /var/www/html/index.html
   <link rel="stylesheet" href="/assets/styles.css">
 </head>
 <body>
-  <h1>🚀 Production-Grade AWS Application</h1>
+  <h1>🚀 My AWS Lab Application</h1>
   <p><strong>Instance ID:</strong> ${INSTANCE_ID}</p>
   <p><strong>Availability Zone:</strong> ${AZ}</p>
-  <p>Traffic routed via ALB &rarr; Auto Scaling Group &rarr; EC2 (private subnet)</p>
+  <p>Routed via ALB → Auto Scaling Group → EC2 (private subnet)</p>
 </body>
 </html>
 EOF
 ```
 
-### Step 5.4 – Create the Launch Template
-
-```bash
-USER_DATA=$(base64 -w 0 userdata.sh)
-ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-
-LT_ID=$(aws ec2 create-launch-template \
-  --launch-template-name lab-launch-template \
-  --version-description "v1-initial" \
-  --launch-template-data "{
-    \"ImageId\": \"$AMI_ID\",
-    \"InstanceType\": \"t3.micro\",
-    \"IamInstanceProfile\": {
-      \"Name\": \"lab-ec2-profile\"
-    },
-    \"SecurityGroupIds\": [\"$EC2_SG\"],
-    \"UserData\": \"$USER_DATA\",
-    \"TagSpecifications\": [{
-      \"ResourceType\": \"instance\",
-      \"Tags\": [{\"Key\":\"Name\",\"Value\":\"lab-web-server\"}]
-    }],
-    \"MetadataOptions\": {
-      \"HttpTokens\": \"required\",
-      \"HttpPutResponseHopLimit\": 1
-    },
-    \"Monitoring\": {\"Enabled\": true}
-  }" \
-  --query 'LaunchTemplate.LaunchTemplateId' \
-  --output text)
-
-echo "Launch Template ID: $LT_ID"
-```
-
-> **🔒 Security Note:** `HttpTokens: required` enforces IMDSv2, which prevents SSRF attacks from abusing the instance metadata service. Always set this in production.
+Click **Create launch template**
 
 ---
 
 ## 📈 Module 6: Auto Scaling Group
 
-**Goal:** Deploy an ASG that maintains availability across AZs and scales automatically based on CPU and request load.
+> **Navigate to:** Console → `EC2` → left sidebar → **Auto Scaling Groups**
 
-### Step 6.1 – Create the Auto Scaling Group
+---
 
-```bash
-aws autoscaling create-auto-scaling-group \
-  --auto-scaling-group-name lab-asg \
-  --launch-template "LaunchTemplateId=$LT_ID,Version=\$Latest" \
-  --min-size 2 \
-  --max-size 6 \
-  --desired-capacity 2 \
-  --vpc-zone-identifier "$PRIV_SUB_A,$PRIV_SUB_B" \
-  --target-group-arns $TG_ARN \
-  --health-check-type ELB \
-  --health-check-grace-period 120 \
-  --tags "Key=Name,Value=lab-asg-instance,PropagateAtLaunch=true" \
-         "Key=Environment,Value=lab,PropagateAtLaunch=true"
-```
+### Step 6.1 — Create the Auto Scaling Group
 
-### Step 6.2 – Configure Target Tracking Scaling Policy (CPU)
+1. Click **Create Auto Scaling group**
 
-Automatically scale out when average CPU exceeds 60%, and scale in when it drops.
+**Step 1 — Choose launch template:**
+| Field | Value |
+|---|---|
+| Auto Scaling group name | `lab-asg` |
+| Launch template | `lab-launch-template` |
+| Version | Latest |
 
-```bash
-aws autoscaling put-scaling-policy \
-  --auto-scaling-group-name lab-asg \
-  --policy-name lab-cpu-target-tracking \
-  --policy-type TargetTrackingScaling \
-  --target-tracking-configuration '{
-    "PredefinedMetricSpecification": {
-      "PredefinedMetricType": "ASGAverageCPUUtilization"
-    },
-    "TargetValue": 60.0,
-    "ScaleInCooldown": 300,
-    "ScaleOutCooldown": 60
-  }'
-```
+Click **Next**
 
-### Step 6.3 – Configure Request Count Scaling Policy (ALB)
+**Step 2 — Choose instance launch options:**
+- VPC: `lab-vpc`
+- Availability Zones and subnets: select both `lab-private-subnet-a` and `lab-private-subnet-b`
 
-Scale based on the number of requests per target — useful for I/O-bound or latency-sensitive applications.
+Click **Next**
 
-```bash
-# Get the ALB suffix for the resource label
-ALB_SUFFIX=$(echo $ALB_ARN | cut -d'/' -f2-4)
-TG_SUFFIX=$(echo $TG_ARN | cut -d'/' -f2-4)
+**Step 3 — Configure advanced options:**
+- Load balancing: **Attach to an existing load balancer**
+- Choose from your load balancer target groups: `lab-target-group`
+- Health checks:
+  - ✅ Turn on Elastic Load Balancing health checks
+  - Health check grace period: `120` seconds
+- Monitoring: ✅ Enable group metrics collection within CloudWatch
 
-aws autoscaling put-scaling-policy \
-  --auto-scaling-group-name lab-asg \
-  --policy-name lab-request-count-tracking \
-  --policy-type TargetTrackingScaling \
-  --target-tracking-configuration "{
-    \"PredefinedMetricSpecification\": {
-      \"PredefinedMetricType\": \"ALBRequestCountPerTarget\",
-      \"ResourceLabel\": \"${ALB_SUFFIX}/targetgroup/${TG_SUFFIX}\"
-    },
-    \"TargetValue\": 1000.0,
-    \"ScaleInCooldown\": 300,
-    \"ScaleOutCooldown\": 60
-  }"
-```
+Click **Next**
 
-### Step 6.4 – Configure Scheduled Scaling Actions
+**Step 4 — Configure group size and scaling:**
+| Field | Value |
+|---|---|
+| Desired capacity | `2` |
+| Minimum capacity | `2` |
+| Maximum capacity | `6` |
 
-Pre-warm your fleet before a known traffic spike (e.g., business hours).
+**Automatic scaling — Add a scaling policy:**
+- Select **Target tracking scaling policy**
 
-```bash
-# Scale up at 8am UTC on weekdays
-aws autoscaling put-scheduled-action \
-  --auto-scaling-group-name lab-asg \
-  --scheduled-action-name scale-up-business-hours \
-  --recurrence "0 8 * * MON-FRI" \
-  --min-size 4 \
-  --max-size 6 \
-  --desired-capacity 4
+First policy:
+| Field | Value |
+|---|---|
+| Scaling policy name | `lab-cpu-tracking` |
+| Metric type | Average CPU utilization |
+| Target value | `60` |
+| Instance warmup | `120` seconds |
 
-# Scale back down at 8pm UTC on weekdays
-aws autoscaling put-scheduled-action \
-  --auto-scaling-group-name lab-asg \
-  --scheduled-action-name scale-down-off-hours \
-  --recurrence "0 20 * * MON-FRI" \
-  --min-size 2 \
-  --max-size 6 \
-  --desired-capacity 2
-```
+Click **Add policy** again for a second policy:
+| Field | Value |
+|---|---|
+| Scaling policy name | `lab-request-tracking` |
+| Metric type | Application Load Balancer request count per target |
+| Target group | `lab-target-group` |
+| Target value | `1000` |
+| Instance warmup | `120` seconds |
 
-### Step 6.5 – Enable Instance Refresh
+Click **Next**
 
-Instance Refresh allows you to roll out a new Launch Template version (e.g., new AMI or updated user data) across the ASG with zero downtime using a rolling replacement strategy.
+**Step 5 — Add notifications:** Skip → **Next**
 
-```bash
-# First create a new Launch Template version (e.g., with an updated AMI or config change)
-aws ec2 create-launch-template-version \
-  --launch-template-id $LT_ID \
-  --version-description "v2-updated" \
-  --source-version 1 \
-  --launch-template-data '{"InstanceType":"t3.small"}'
+**Step 6 — Add tags:**
+| Key | Value | Propagate to instances |
+|---|---|---|
+| `Name` | `lab-web-server` | ✅ |
+| `Environment` | `lab` | ✅ |
 
-# Trigger a rolling instance refresh targeting the new version
-aws autoscaling start-instance-refresh \
-  --auto-scaling-group-name lab-asg \
-  --preferences '{
-    "MinHealthyPercentage": 80,
-    "InstanceWarmup": 120,
-    "CheckpointPercentages": [33, 66, 100],
-    "CheckpointDelay": 120
-  }'
+Click **Next** → **Create Auto Scaling group**
 
-# Monitor the refresh status
-aws autoscaling describe-instance-refreshes \
-  --auto-scaling-group-name lab-asg \
-  --query 'InstanceRefreshes[0].{Status:Status,PercentComplete:PercentageComplete}'
-```
+---
+
+### Step 6.2 — Add Scheduled Scaling Actions
+
+1. Open `lab-asg` → **Automatic scaling** tab → scroll to **Scheduled actions**
+2. Click **Create scheduled action**
+
+**Scale up (business hours):**
+| Field | Value |
+|---|---|
+| Name | `scale-up-business-hours` |
+| Desired capacity | `4` |
+| Min | `4` |
+| Max | `6` |
+| Recurrence | `0 8 * * MON-FRI` (cron — 8am UTC weekdays) |
+
+3. Click **Create** → then **Create scheduled action** again
+
+**Scale down (off-hours):**
+| Field | Value |
+|---|---|
+| Name | `scale-down-off-hours` |
+| Desired capacity | `2` |
+| Min | `2` |
+| Max | `6` |
+| Recurrence | `0 20 * * MON-FRI` (cron — 8pm UTC weekdays) |
+
+4. Click **Create**
+
+---
+
+### Step 6.3 — Test Instance Refresh (Rolling Update)
+
+Instance Refresh lets you roll out changes to all instances with zero downtime.
+
+1. Open `lab-asg` → **Instance refresh** tab
+2. Click **Start instance refresh**
+3. Configure:
+   | Field | Value |
+   |---|---|
+   | Minimum healthy percentage | `80` |
+   | Instance warmup | `120` seconds |
+   | Enable checkpoints | ✅ Yes |
+   | Checkpoint percentages | `33`, `66`, `100` |
+   | Checkpoint delay | `120` seconds |
+4. Click **Start instance refresh**
+5. Watch the **Status** column — it will move through `Pending → InProgress → Successful`
 
 ---
 
 ## ✅ Module 7: Validation and Testing
 
-### Step 7.1 – Verify the ALB and Instances
+### Step 7.1 — Check Target Group Health
 
+1. Go to **EC2** → **Target Groups** → click `lab-target-group`
+2. Click the **Targets** tab
+3. Wait until all registered instances show **healthy** status (green)
+
+If any instance shows **unhealthy**, click on it → check **Health status details** for the reason (usually the instance is still warming up — wait 2–3 minutes).
+
+---
+
+### Step 7.2 — Test the Application in a Browser
+
+1. Go to **EC2** → **Load Balancers** → click `lab-alb`
+2. Copy the **DNS name** from the Description tab
+3. Open a browser and visit:
+   - `http://<ALB-DNS-NAME>/` — should show the app page with Instance ID and AZ
+   - `http://<ALB-DNS-NAME>/health` — should return `OK`
+   - `http://<ALB-DNS-NAME>/assets/styles.css` — should return your CSS file
+
+4. **Refresh the page 5–10 times.** The Instance ID should alternate between two different IDs — confirming the ALB is distributing traffic across both instances in different AZs.
+
+---
+
+### Step 7.3 — Connect to an Instance Without SSH (SSM Session Manager)
+
+1. Go to **EC2** → **Instances**
+2. Select one of the running `lab-web-server` instances
+3. Click **Connect** (top right)
+4. Select the **Session Manager** tab → click **Connect**
+
+A browser-based terminal opens — no SSH, no key pair, no open ports needed.
+
+Inside the session:
 ```bash
-# Check instance registration in the target group
-aws elbv2 describe-target-health \
-  --target-group-arn $TG_ARN \
-  --query 'TargetHealthDescriptions[*].{Id:Target.Id,State:TargetHealth.State}'
+# Verify the web server is running
+systemctl status httpd
 
-# Wait for all instances to pass health checks
-echo "Waiting for targets to become healthy..."
-while true; do
-  HEALTHY=$(aws elbv2 describe-target-health \
-    --target-group-arn $TG_ARN \
-    --query 'length(TargetHealthDescriptions[?TargetHealth.State==`healthy`])' \
-    --output text)
-  echo "Healthy targets: $HEALTHY / 2"
-  [ "$HEALTHY" -ge 2 ] && break
-  sleep 15
-done
-echo "All targets healthy!"
+# Confirm S3 assets were pulled
+ls /var/www/html/assets/
+
+# Check the health endpoint file
+cat /var/www/html/health
 ```
 
-### Step 7.2 – Test the Application
+---
+
+### Step 7.4 — Simulate Load and Watch Auto Scaling
+
+Inside the SSM session on an EC2 instance:
 
 ```bash
-# Test the load balancer
-curl http://$ALB_DNS/
-curl http://$ALB_DNS/health
-
-# Confirm ALB is distributing requests across AZs (notice different Instance IDs)
-echo "Checking load distribution across AZs:"
-for i in {1..10}; do
-  curl -s http://$ALB_DNS/ | grep "Instance ID\|Availability Zone"
-  echo "---"
-done
-```
-
-### Step 7.3 – Test S3 Asset Delivery via EC2
-
-```bash
-curl http://$ALB_DNS/assets/styles.css
-```
-
-### Step 7.4 – Connect to an Instance via SSM (No SSH Required)
-
-```bash
-# Get an instance ID from the ASG
-INSTANCE_ID=$(aws autoscaling describe-auto-scaling-groups \
-  --auto-scaling-group-names lab-asg \
-  --query 'AutoScalingGroups[0].Instances[0].InstanceId' \
-  --output text)
-
-echo "Connecting to: $INSTANCE_ID"
-
-# Open a secure shell session via SSM — no key pair or open port 22 needed
-aws ssm start-session --target $INSTANCE_ID
-```
-
-### Step 7.5 – Stress Test and Watch Auto Scaling
-
-Inside the SSM session, run a CPU stress test:
-
-```bash
-# Install and run stress tool (inside the SSM session)
+# Install stress tool and generate CPU load
 sudo yum install -y stress
-stress --cpu 4 --timeout 300 &
-exit
+sudo stress --cpu 4 --timeout 300
 ```
 
-Back in your local terminal, watch the ASG respond:
+Back in the console, watch the ASG respond:
 
-```bash
-# Monitor scaling activity in real time
-watch -n 10 "aws autoscaling describe-scaling-activities \
-  --auto-scaling-group-name lab-asg \
-  --query 'Activities[0:5].{Status:StatusCode,Desc:Description}' \
-  --output table"
-
-# Watch instance count change
-watch -n 10 "aws autoscaling describe-auto-scaling-groups \
-  --auto-scaling-group-names lab-asg \
-  --query 'AutoScalingGroups[0].{Min:MinSize,Max:MaxSize,Desired:DesiredCapacity,Running:length(Instances)}'"
-```
+1. Go to **EC2** → **Auto Scaling Groups** → `lab-asg`
+2. Click the **Activity** tab — you'll see scale-out events appear within 2–3 minutes
+3. Click the **Instance management** tab — watch new instances appear and register with the target group
+4. After the stress test ends, watch the ASG scale back in after the cooldown period (~5 minutes)
 
 ---
 
 ## 🧪 Lab Validation Checklist
 
 **Module 1 – IAM**
-- [ ] EC2 instance policy created with S3, CloudWatch Logs, and SSM permissions
-- [ ] Permission boundary created and attached to the EC2 role
-- [ ] EC2 trust policy scoped to `ec2.amazonaws.com`
-- [ ] Instance profile `lab-ec2-profile` created and role attached
-- [ ] Lab deploy user created and added to `lab-deploy-group`
+- [ ] Permission boundary policy `lab-ec2-permission-boundary` created
+- [ ] Instance policy `lab-ec2-instance-policy` created (S3, CloudWatch, SSM)
+- [ ] Role `lab-ec2-instance-role` created, policy attached, boundary set
+- [ ] Deploy user `lab-deploy-user` added to `lab-deploy-group`
 
 **Module 2 – VPC**
-- [ ] VPC `lab-vpc` created with CIDR `10.0.0.0/16`, DNS hostnames enabled
-- [ ] 2 public and 2 private subnets created across AZ-A and AZ-B
-- [ ] Internet Gateway attached; public route table routes `0.0.0.0/0` → IGW
-- [ ] NAT Gateways deployed in both public subnets (one per AZ)
-- [ ] Private route tables route `0.0.0.0/0` → respective NAT Gateway
-- [ ] ALB Security Group allows ports 80/443 from `0.0.0.0/0`
-- [ ] EC2 Security Group allows port 80 **only from the ALB SG** (not from internet)
+- [ ] VPC with CIDR `10.0.0.0/16`, DNS hostnames enabled
+- [ ] 2 public + 2 private subnets across AZ-A and AZ-B
+- [ ] Public subnets have auto-assign public IP enabled
+- [ ] Internet Gateway attached to VPC
+- [ ] 2 NAT Gateways (one per AZ) with Elastic IPs, both showing **Available**
+- [ ] Public route table: `0.0.0.0/0` → IGW, associated with both public subnets
+- [ ] Private route tables AZ-A and AZ-B: `0.0.0.0/0` → respective NAT Gateway
+- [ ] `lab-alb-sg`: allows ports 80 and 443 from `0.0.0.0/0`
+- [ ] `lab-ec2-sg`: allows port 80 from `lab-alb-sg` only
 
 **Module 3 – S3**
 - [ ] Bucket created with all public access blocked
-- [ ] Versioning enabled on the bucket
-- [ ] Bucket policy allows EC2 role only; denies all other principals
-- [ ] Server-side encryption enabled (AES-256 with Bucket Key)
-- [ ] Lifecycle rule transitions old versions to S3-IA at 30 days, expires at 90
-- [ ] Sample CSS asset uploaded successfully
+- [ ] Versioning enabled
+- [ ] SSE-S3 encryption with Bucket Key enabled
+- [ ] Lifecycle rule created (30-day IA transition, 90-day expiry)
+- [ ] Bucket policy saved (allows EC2 role, denies all others)
+- [ ] `styles.css` uploaded to `assets/styles.css`
 
 **Module 4 – ALB**
-- [ ] ALB deployed in both public subnets (internet-facing)
-- [ ] Target group created with `/health` health check path (HTTP 200 required)
-- [ ] HTTP listener on port 80 forwards traffic to the target group
-- [ ] Custom listener rule returns fixed 200 for `/health` at ALB level
+- [ ] Target group `lab-target-group` with `/health` path, HTTP 200 matcher
+- [ ] ALB `lab-alb` deployed across both public subnets (internet-facing)
+- [ ] ALB uses `lab-alb-sg`, listener on port 80 forwards to target group
+- [ ] Custom listener rule: path `/health` → fixed 200 response
 
 **Module 5 – Launch Template**
-- [ ] Launch Template uses latest Amazon Linux 2023 AMI
-- [ ] IAM instance profile `lab-ec2-profile` attached
-- [ ] IMDSv2 enforced (`HttpTokens: required`)
-- [ ] User Data installs Apache, creates `/health`, and pulls assets from S3
+- [ ] Latest Amazon Linux 2023 AMI selected
+- [ ] Instance type `t3.micro`
+- [ ] Security group `lab-ec2-sg` attached
+- [ ] IAM instance profile `lab-ec2-profile` set
+- [ ] IMDSv2 enforced (V2 only, hop limit 1)
 - [ ] Detailed monitoring enabled
+- [ ] User data script pasted correctly
 
 **Module 6 – Auto Scaling**
-- [ ] ASG spans both private subnets across 2 AZs
-- [ ] Min=2, Max=6, Desired=2 configured
-- [ ] ELB health checks with 120-second grace period
-- [ ] CPU target tracking policy at 60% threshold
-- [ ] ALB request count tracking policy at 1000 req/target
-- [ ] Scheduled scale-up (8am) and scale-down (8pm) weekday actions created
-- [ ] Instance Refresh successfully rolled out updated Launch Template version
+- [ ] ASG spans `lab-private-subnet-a` and `lab-private-subnet-b`
+- [ ] Min=2, Max=6, Desired=2
+- [ ] ALB target group attached, ELB health checks on, 120s grace period
+- [ ] CPU target tracking at 60%
+- [ ] Request count tracking at 1000 req/target
+- [ ] Scheduled scale-up (8am Mon–Fri) and scale-down (8pm Mon–Fri) created
+- [ ] Instance Refresh ran successfully
 
 **Module 7 – Validation**
-- [ ] All 2 targets healthy in the target group
-- [ ] `curl http://<ALB-DNS>/` returns the HTML app page
-- [ ] `curl http://<ALB-DNS>/health` returns `OK`
-- [ ] Multiple requests show different Instance IDs/AZs (load balancing confirmed)
-- [ ] S3 CSS asset accessible via `http://<ALB-DNS>/assets/styles.css`
-- [ ] SSM Session Manager connection to a private EC2 instance successful (no SSH)
-- [ ] ASG scaled out during CPU stress test; scaled back in after cooldown
+- [ ] All 2 targets healthy in target group
+- [ ] `http://<ALB-DNS>/` returns the styled HTML page
+- [ ] `http://<ALB-DNS>/health` returns `OK`
+- [ ] Refreshing the page shows different Instance IDs (load balancing works)
+- [ ] `http://<ALB-DNS>/assets/styles.css` returns the CSS file from S3
+- [ ] SSM Session Manager connected to a private instance successfully
+- [ ] ASG scaled out during CPU stress test; scaled in after cooldown
 
 ---
 
-## 🧹 Cleanup – Avoid Unexpected Charges
+## 🧹 Cleanup — Avoid Unexpected Charges
 
-> ⚠️ **Follow this order precisely.** Deleting resources out of order causes dependency errors.
+> ⚠️ **Follow this order exactly.** Deleting in the wrong order causes dependency errors.
 
-```bash
-# 1. Delete Scheduled Scaling Actions
-aws autoscaling delete-scheduled-action --auto-scaling-group-name lab-asg --scheduled-action-name scale-up-business-hours
-aws autoscaling delete-scheduled-action --auto-scaling-group-name lab-asg --scheduled-action-name scale-down-off-hours
-
-# 2. Delete Scaling Policies
-aws autoscaling delete-policy --auto-scaling-group-name lab-asg --policy-name lab-cpu-target-tracking
-aws autoscaling delete-policy --auto-scaling-group-name lab-asg --policy-name lab-request-count-tracking
-
-# 3. Delete Auto Scaling Group (terminates all EC2 instances)
-aws autoscaling delete-auto-scaling-group --auto-scaling-group-name lab-asg --force-delete
-echo "Waiting 60s for instances to terminate..."
-sleep 60
-
-# 4. Delete Launch Template (all versions)
-aws ec2 delete-launch-template --launch-template-id $LT_ID
-
-# 5. Delete ALB Listener, then Load Balancer
-aws elbv2 delete-listener --listener-arn $LISTENER_ARN
-aws elbv2 delete-load-balancer --load-balancer-arn $ALB_ARN
-
-# 6. Delete Target Group
-aws elbv2 delete-target-group --target-group-arn $TG_ARN
-
-# 7. Empty and delete S3 bucket (must empty versioned bucket first)
-aws s3api list-object-versions --bucket $BUCKET_NAME \
-  --query '{Objects: Versions[].{Key:Key,VersionId:VersionId}}' \
-  --output json | python3 -c "
-import json, sys, subprocess
-data = json.load(sys.stdin)
-for obj in data.get('Objects', []):
-    subprocess.run(['aws', 's3api', 'delete-object', '--bucket', '$BUCKET_NAME',
-                    '--key', obj['Key'], '--version-id', obj['VersionId']])
-"
-aws s3api delete-bucket --bucket $BUCKET_NAME
-
-# 8. Delete NAT Gateways
-aws ec2 delete-nat-gateway --nat-gateway-id $NAT_A
-aws ec2 delete-nat-gateway --nat-gateway-id $NAT_B
-echo "Waiting for NAT Gateways to delete (~60s)..."
-aws ec2 wait nat-gateway-deleted --nat-gateway-ids $NAT_A $NAT_B
-
-# 9. Release Elastic IPs
-aws ec2 release-address --allocation-id $EIP_A
-aws ec2 release-address --allocation-id $EIP_B
-
-# 10. Delete Security Groups
-aws ec2 delete-security-group --group-id $EC2_SG
-aws ec2 delete-security-group --group-id $ALB_SG
-
-# 11. Delete Subnets
-for SUBNET in $PUB_SUB_A $PUB_SUB_B $PRIV_SUB_A $PRIV_SUB_B; do
-  aws ec2 delete-subnet --subnet-id $SUBNET
-done
-
-# 12. Delete Route Tables
-for RTB in $PUB_RTB $PRIV_RTB_A $PRIV_RTB_B; do
-  aws ec2 delete-route-table --route-table-id $RTB
-done
-
-# 13. Detach and Delete Internet Gateway
-aws ec2 detach-internet-gateway --internet-gateway-id $IGW_ID --vpc-id $VPC_ID
-aws ec2 delete-internet-gateway --internet-gateway-id $IGW_ID
-
-# 14. Delete VPC
-aws ec2 delete-vpc --vpc-id $VPC_ID
-
-# 15. Delete IAM Resources
-aws iam remove-role-from-instance-profile --instance-profile-name lab-ec2-profile --role-name lab-ec2-instance-role
-aws iam delete-instance-profile --instance-profile-name lab-ec2-profile
-aws iam detach-role-policy --role-name lab-ec2-instance-role --policy-arn arn:aws:iam::${ACCOUNT_ID}:policy/lab-ec2-instance-policy
-aws iam delete-role --role-name lab-ec2-instance-role
-aws iam delete-policy --policy-arn arn:aws:iam::${ACCOUNT_ID}:policy/lab-ec2-instance-policy
-aws iam delete-policy --policy-arn arn:aws:iam::${ACCOUNT_ID}:policy/lab-ec2-permission-boundary
-aws iam remove-user-from-group --group-name lab-deploy-group --user-name lab-deploy-user
-for POLICY in AmazonEC2FullAccess AmazonS3FullAccess ElasticLoadBalancingFullAccess AutoScalingFullAccess; do
-  aws iam detach-group-policy --group-name lab-deploy-group --policy-arn arn:aws:iam::aws:policy/$POLICY
-done
-aws iam delete-group --group-name lab-deploy-group
-aws iam delete-user --user-name lab-deploy-user
-
-# 16. Delete Key Pair
-aws ec2 delete-key-pair --key-name lab-key-pair
-rm -f lab-key-pair.pem userdata.sh styles.css ec2-policy.json permission-boundary.json \
-      ec2-trust-policy.json bucket-policy.json lifecycle.json
-
-echo "✅ Cleanup complete. All lab resources have been deleted."
-```
+| Step | Service | Action |
+|---|---|---|
+| 1 | Auto Scaling | Open `lab-asg` → **Actions** → **Delete** → confirm |
+| 2 | Launch Template | Select `lab-launch-template` → **Actions** → **Delete** |
+| 3 | ALB | Select `lab-alb` → **Actions** → **Delete** |
+| 4 | Target Group | Select `lab-target-group` → **Actions** → **Delete** |
+| 5 | S3 | Open bucket → **Empty** (confirm) → then **Delete bucket** (confirm) |
+| 6 | NAT Gateways | Select `lab-nat-a` → **Actions** → **Delete** → repeat for `lab-nat-b` → wait for **Deleted** status |
+| 7 | Elastic IPs | Go to **Elastic IPs** → release both unassociated IPs |
+| 8 | Security Groups | Delete `lab-ec2-sg`, then `lab-alb-sg` |
+| 9 | Subnets | Delete all 4 subnets |
+| 10 | Route Tables | Delete `lab-public-rtb`, `lab-private-rtb-a`, `lab-private-rtb-b` |
+| 11 | Internet Gateway | Detach from VPC → then Delete |
+| 12 | VPC | Select `lab-vpc` → **Actions** → **Delete** |
+| 13 | IAM | Delete role `lab-ec2-instance-role` → delete instance profile `lab-ec2-profile` → delete both policies → delete user and group |
+| 14 | EC2 Key Pair | Delete `lab-key-pair` from Key Pairs console page |
 
 ---
 
@@ -1154,23 +963,23 @@ echo "✅ Cleanup complete. All lab resources have been deleted."
 | Auto Scaling Instance Refresh | https://docs.aws.amazon.com/autoscaling/ec2/userguide/asg-instance-refresh.html |
 | S3 Bucket Policies | https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucket-policies.html |
 | S3 Lifecycle Rules | https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lifecycle-mgmt.html |
-| IMDSv2 (Metadata Service) | https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html |
+| IMDSv2 | https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html |
 | SSM Session Manager | https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html |
 
 ---
 
 ## 📝 Lab Summary
 
-| Module | Service | Key Concepts Covered |
+| Module | Service | Key Concepts |
 |---|---|---|
-| 1 | IAM | Roles, inline vs managed policies, permission boundaries, instance profiles, least privilege |
-| 2 | VPC | Multi-AZ design, public/private subnets, IGW, NAT Gateways, route tables, security group chaining |
-| 3 | S3 | Bucket policies, resource-based vs identity-based policies, versioning, lifecycle rules, SSE-S3 encryption |
-| 4 | ALB | Target groups, health checks, listener rules, fixed-response actions, multi-AZ distribution |
-| 5 | EC2 | Launch Templates, IMDSv2, user data bootstrapping, SSM access (no SSH) |
-| 6 | Auto Scaling | Target tracking (CPU + ALB), scheduled scaling, instance refresh with checkpoints |
-| 7 | Validation | SSM Session Manager, CPU stress testing, real-time ASG scaling observation |
+| 1 | IAM | Policies, permission boundaries, roles, instance profiles, users & groups |
+| 2 | VPC | Multi-AZ subnets, IGW, NAT Gateways, route tables, security group chaining |
+| 3 | S3 | Bucket policies, versioning, lifecycle rules, SSE encryption |
+| 4 | ALB | Target groups, health checks, listener rules, fixed-response actions |
+| 5 | EC2 | Launch Templates, IMDSv2, user data bootstrapping |
+| 6 | Auto Scaling | Target tracking, scheduled scaling, instance refresh |
+| 7 | Validation | SSM Session Manager, load testing, ASG scaling observation |
 
 ---
 
-*Built with AWS best practices in mind. Happy building! ☁️*
+*Happy building on AWS! ☁️*
