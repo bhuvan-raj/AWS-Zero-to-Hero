@@ -9,9 +9,7 @@ A comprehensive, end-to-end lab for deploying a highly available, scalable, and 
 | Field | Details |
 |---|---|
 | **Difficulty** | Intermediate – Advanced |
-| **Estimated Time** | 5 – 7 hours |
 | **AWS Region** | `us-east-1` (N. Virginia) |
-| **Cost Estimate** | ~$0.50 – $2.00 for the duration of the lab |
 | **Architecture** | Multi-AZ, Auto Scaling, Load Balanced |
 
 ### What You'll Build
