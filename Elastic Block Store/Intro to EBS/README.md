@@ -1,4 +1,6 @@
 # Amazon Elastic Block Storage
+<img src="https://github.com/bhuvan-raj/AWS-Zero-to-Hero/blob/main/assets/ebs.png" alt="Banner" />
+
 
 ## 🧠 What is Block Storage?
 
