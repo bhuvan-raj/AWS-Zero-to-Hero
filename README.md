@@ -145,8 +145,15 @@ This section covers Amazon EC2 — the backbone of AWS compute. You'll learn how
 | 8.5 | [AutoScaling-Hands-on](./Elastic%20Compute%20Cloud/Auto-Scaling-Hands-on/) |Hands-on Lab on autoscaling in aws|
 | 8.5 | [Autoscaling+SNS+S3](./Elastic%20Compute%20Cloud/Autoscaling+SNS+S3/) |Hands-on Lab on Autoscaling+SNS+S3|
 ---
+## 8. AWS Elastic Block Store (EBS)
 
+This section provides a detailed understanding of Amazon EBS — how to create, manage, and optimize persistent block storage for EC2 instances. It covers core storage concepts, volume types, performance tuning, snapshots, and security features.
 
+📂 **[Explore → AWS Elastic Block Store (EBS)](./Elastic%20Block%20Store/)**
+
+| # | Sub-Topic | Description |
+|---|-----------|-------------|
+| 4.1 | [Introduction to AWS EBS](./Elastic%20Block%20Store/Intro%20to%20EBS/) | Block Storage Introduction, EBS and filesystem Types and Hands-on Lab|
 
 ## 🛠️ Prerequisites
 
