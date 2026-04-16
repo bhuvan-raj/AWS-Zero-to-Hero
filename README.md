@@ -153,7 +153,7 @@ This section provides a detailed understanding of Amazon EBS — how to create, 
 
 | # | Sub-Topic | Description |
 |---|-----------|-------------|
-| 4.1 | [Introduction to AWS EBS](./Elastic%20Block%20Store/Intro%20to%20EBS/) | Block Storage Introduction, EBS and filesystem Types and Hands-on Lab|
+| 8.1 | [Introduction to AWS EBS](./Elastic%20Block%20Store/Intro%20to%20EBS/) | Block Storage Introduction, EBS and filesystem Types and Hands-on Lab|
 
 ## 🛠️ Prerequisites
 
