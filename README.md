@@ -154,7 +154,7 @@ This section provides a detailed understanding of Amazon EBS — how to create, 
 | # | Sub-Topic | Description |
 |---|-----------|-------------|
 | 8.1 | [Introduction to AWS EBS](./Elastic%20Block%20Store/Intro%20to%20EBS/) | Block Storage Introduction, EBS and filesystem Types and Hands-on Lab|
-| 8.2 | [EBS Permanent Mountung](./Elastic%20Block%20Store/EBS-Permanent-mounting/) | Hands-on Lab on Permanent mouting of ebs volume|
+| 8.2 | [EBS Permanent Mounting](./Elastic%20Block%20Store/EBS-Permanent-mounting/) | Hands-on Lab on Permanent mouting of ebs volume|
 
 ## 🛠️ Prerequisites
 
