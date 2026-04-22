@@ -96,7 +96,7 @@ sudo mkdir /mnt/recovery
 ## Mount
 
 ```bash
-sudo mount /dev/xvdf1 /mnt/recovery
+sudo mount -t xfs -o nouuid /dev/nvme1n1p1 /data
 ```
 
 👉 Sometimes partition may be `/dev/xvdf` instead of `xvdf1`
