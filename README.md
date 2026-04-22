@@ -155,6 +155,8 @@ This section provides a detailed understanding of Amazon EBS — how to create, 
 |---|-----------|-------------|
 | 8.1 | [Introduction to AWS EBS](./Elastic%20Block%20Store/Intro%20to%20EBS/) | Block Storage Introduction, EBS and filesystem Types and Hands-on Lab|
 | 8.2 | [EBS Permanent Mounting](./Elastic%20Block%20Store/EBS-Permanent-mounting/) | Hands-on Lab on Permanent mouting of ebs volume|
+| 8.3 | [Keypair Recovery using EBS](./Elastic%20Block%20Store/Key-Recovery-using-EBS/) | Hands-on Lab on keypair recovery using ebs root volume swapping|
+
 
 ## 🛠️ Prerequisites
 
