@@ -1,6 +1,7 @@
 
+# 📘 Disk Management: fdisk vs LVM + Hands-on Lab
 
-# 📘 **Difference between fdisk and LVM**
+---
 
 ## 🔹 What is `fdisk`?
 
@@ -20,15 +21,16 @@
 * Advanced storage management layer
 * Works **on top of partitions or disks**
 * Provides **flexible, resizable storage**
-* Components:
 
-  * Physical Volume (PV)
-  * Volume Group (VG)
-  * Logical Volume (LV)
+### 🔧 Components:
+
+* **PV (Physical Volume)** → Disk or partition
+* **VG (Volume Group)** → Pool of storage
+* **LV (Logical Volume)** → Usable partition
 
 ---
 
-## ⚖️ **Key Differences**
+## ⚖️ Key Differences
 
 | Feature          | fdisk              | LVM                                |
 | ---------------- | ------------------ | ---------------------------------- |
@@ -41,13 +43,13 @@
 
 ---
 
-## 🎯 **Interview One-liner**
+## 🎯 Interview One-liner
 
-> “fdisk is used for static disk partitioning, whereas LVM provides flexible storage management with resizing, snapshots, and disk aggregation.”
+> fdisk is used for static disk partitioning, whereas LVM provides flexible storage with resizing, snapshots, and disk aggregation.
 
 ---
 
-# 🧪 **LVM Lab Steps (Hands-on)**
+# 🧪 LVM Lab (Hands-on)
 
 ## 🧱 Scenario
 
@@ -57,7 +59,7 @@ You attached a new EBS volume (e.g., `/dev/xvdf`) and want to configure LVM.
 
 ## 🔹 Step 1: Check disk
 
-```bash id="fwsj1m"
+```bash
 lsblk
 ```
 
@@ -65,13 +67,8 @@ lsblk
 
 ## 🔹 Step 2: Create Physical Volume (PV)
 
-```bash id="f3kt0p"
+```bash
 sudo pvcreate /dev/xvdf
-```
-
-Verify:
-
-```bash id="6dxn0g"
 sudo pvdisplay
 ```
 
@@ -79,13 +76,8 @@ sudo pvdisplay
 
 ## 🔹 Step 3: Create Volume Group (VG)
 
-```bash id="i6z0b5"
+```bash
 sudo vgcreate my_vg /dev/xvdf
-```
-
-Verify:
-
-```bash id="ej47v4"
 sudo vgdisplay
 ```
 
@@ -93,13 +85,8 @@ sudo vgdisplay
 
 ## 🔹 Step 4: Create Logical Volume (LV)
 
-```bash id="szlbqr"
+```bash
 sudo lvcreate -n my_lv -L 5G my_vg
-```
-
-Verify:
-
-```bash id="e3yw4h"
 sudo lvdisplay
 ```
 
@@ -107,7 +94,7 @@ sudo lvdisplay
 
 ## 🔹 Step 5: Create filesystem
 
-```bash id="0u4yib"
+```bash
 sudo mkfs.ext4 /dev/my_vg/my_lv
 ```
 
@@ -115,21 +102,16 @@ sudo mkfs.ext4 /dev/my_vg/my_lv
 
 ## 🔹 Step 6: Create mount point
 
-```bash id="h31xxc"
+```bash
 sudo mkdir /data
 ```
 
 ---
 
-## 🔹 Step 7: Mount the volume
+## 🔹 Step 7: Mount volume
 
-```bash id="pjm1tz"
+```bash
 sudo mount /dev/my_vg/my_lv /data
-```
-
-Verify:
-
-```bash id="7k1jbh"
 df -h
 ```
 
@@ -137,50 +119,132 @@ df -h
 
 ## 🔹 Step 8: Permanent mount
 
-```bash id="bkf6x0"
+```bash
 sudo blkid
-```
-
-Edit:
-
-```bash id="avdaxu"
 sudo vi /etc/fstab
 ```
 
 Add:
 
-```id="b6r62u"
+```
 UUID=<uuid>  /data  ext4  defaults  0  2
 ```
 
 Apply:
 
-```bash id="1j2hz5"
+```bash
 sudo mount -a
 ```
 
 ---
 
-# 🔄 **Bonus: Extend Logical Volume**
+# 📈 Extend Logical Volume (lvextend)
 
-## Increase size
+## 🔹 Step 1: Check free space
 
-```bash id="b0cnmo"
+```bash
+sudo vgs
+```
+
+---
+
+## 🔹 Step 2: Extend LV
+
+```bash
 sudo lvextend -L +2G /dev/my_vg/my_lv
 ```
 
-## Resize filesystem
+---
 
-```bash id="jb7nfi"
+## 🔹 Step 3: Resize filesystem
+
+```bash
 sudo resize2fs /dev/my_vg/my_lv
 ```
 
 ---
 
-# 🎯 **Real-world use case**
+## ✅ Shortcut (recommended)
 
-* Combine multiple EBS volumes into one VG
-* Dynamically increase storage without downtime
-* Used heavily in production systems
+```bash
+sudo lvextend -r -L +2G /dev/my_vg/my_lv
+```
 
 ---
+
+# 📉 Reduce Logical Volume (lvreduce)
+
+⚠️ **Risky operation — follow order strictly**
+
+---
+
+## 🔹 Step 1: Unmount
+
+```bash
+sudo umount /data
+```
+
+---
+
+## 🔹 Step 2: Check filesystem
+
+```bash
+sudo e2fsck -f /dev/my_vg/my_lv
+```
+
+---
+
+## 🔹 Step 3: Reduce filesystem FIRST
+
+```bash
+sudo resize2fs /dev/my_vg/my_lv 6G
+```
+
+---
+
+## 🔹 Step 4: Reduce LV
+
+```bash
+sudo lvreduce -L 6G /dev/my_vg/my_lv
+```
+
+---
+
+## 🔹 Step 5: Mount back
+
+```bash
+sudo mount /dev/my_vg/my_lv /data
+df -h
+```
+
+---
+
+## ✅ Shortcut (safer)
+
+```bash
+sudo lvreduce -r -L 6G /dev/my_vg/my_lv
+```
+
+---
+
+# ⚠️ Important Rules
+
+* Extend → **LV first → FS next**
+* Reduce → **FS first → LV next**
+* Always backup before reducing
+
+---
+
+# 🚀 Real-world Use Cases
+
+* Combine multiple EBS volumes into one VG
+* Increase disk without downtime
+* Used in production systems for scalability
+
+---
+
+# 🧠 Quick Memory
+
+* **fdisk = fixed**
+* **LVM = flexible**
+
