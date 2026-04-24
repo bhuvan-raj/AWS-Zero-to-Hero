@@ -17,6 +17,8 @@
 ---
 
 ## 🔹 What is LVM (Logical Volume Manager)?
+<img src="https://github.com/bhuvan-raj/AWS-Zero-to-Hero/blob/main/assets/lvm.png" alt="Banner" />
+
 
 * Advanced storage management layer
 * Works **on top of partitions or disks**
