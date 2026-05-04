@@ -159,7 +159,25 @@ This section provides a detailed understanding of Amazon EBS — how to create, 
 | 8.4 | [Disk-Partition-using-fdisk](./Elastic%20Block%20Store/Disk-Partition-using-fdisk/) | Disk Partitioning using fdisk commandlet|
 | 8.5 | [Logical Volume Management](./Elastic%20Block%20Store/LVM/) | logical volume management and hands-on labs |
 
+## 9. AWS Elastic File System (EFS)
+
+This section provides a detailed understanding of Amazon EFS — how to create, mount, manage, and optimize scalable shared file storage for EC2 instances. It covers core file storage concepts, performance modes, throughput modes, mount targets, security, lifecycle management, and hands-on labs.
+
+📂 **[Explore → AWS Elastic File System (EFS)](./Elastic%20File%20System/)**
+
+| #    | Sub-Topic                                                                           | Description                                                             |
+| ---- | ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| 9.1  | [Introduction to AWS EFS](./Elastic%20File%20System/Intro%20to%20EFS/)              | File Storage Introduction, EFS architecture, features, and hands-on lab |
+| 9.2  | [Creating and Mounting EFS](./Elastic%20File%20System/Create%20and%20Mount%20EFS/)  | Create EFS, mount targets, attach to EC2 Linux instances |
+
 ## 🛠️ Prerequisites
+
+* Basic understanding of AWS networking (VPC, Subnets, Security Groups)
+* Knowledge of EC2 instances and SSH access
+* Familiarity with Linux commands
+* AWS account with permissions to create EFS and EC2 resources
+* Key pair for connecting to EC2 instances
+
 
 Before diving in, make sure you have:
 
