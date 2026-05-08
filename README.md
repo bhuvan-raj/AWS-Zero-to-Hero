@@ -192,7 +192,7 @@ This section provides a detailed understanding of Amazon RDS — how to create, 
 | #    | Sub-Topic                                                                           | Description                                                             |
 | ---- | ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
 | 11.1  | [Introduction to AWS RDS](./RDS/Introduction-to-RDS) | Introduction to AWS RDS |
-| 11.2  | [DB Creation and Connecting](DB-Creation-and-Connecting)  | Creating a RDS MySQL database and Connecting it through client from an ec2 machine |
+| 11.2  | [DB Creation and Connecting](./RDS/DB-Creation-and-Connecting)  | Creating a RDS MySQL database and Connecting it through client from an ec2 machine |
 
 
 ## 🛠️ Prerequisites
