@@ -170,6 +170,19 @@ This section provides a detailed understanding of Amazon EFS — how to create, 
 | 9.1  | [Introduction to AWS EFS](./Elastic%20File%20System/Intro%20to%20EFS/)              | File Storage Introduction, EFS architecture, features, and hands-on lab |
 | 9.2  | [Creating and Mounting EFS](./Elastic%20File%20System/Create%20and%20Mount%20EFS/)  | Create EFS, mount targets, attach to EC2 Linux instances |
 
+## 10. AWS Lambda
+
+This section provides a detailed understanding of Amazon Lambda — how to create, deploy, manage, and optimize serverless functions for event-driven workloads. It covers core serverless concepts, function creation, triggers, execution roles, environment variables, versions and aliases, scaling behavior, monitoring, security, and hands-on labs.
+
+
+📂 **[Explore → AWS LAMBDA](https://github.com/bhuvan-raj/AWS-Lambda)**
+
+| #    | Sub-Topic                                                                           | Description                                                             |
+| ---- | ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| 10.1  | [Introduction to AWS Lambda](https://github.com/bhuvan-raj/AWS-Lambda)              | Introduction to AWS Lambda and hands-on lab |
+| 9.2  | [Containerized Lambda Function](https://github.com/bhuvan-raj/Lambda-Calculator-containerized)  | Create a container image, push to ecr and create a containerized lambda function |
+
+
 ## 🛠️ Prerequisites
 
 * Basic understanding of AWS networking (VPC, Subnets, Security Groups)
