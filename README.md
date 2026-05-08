@@ -180,7 +180,19 @@ This section provides a detailed understanding of Amazon Lambda — how to creat
 | #    | Sub-Topic                                                                           | Description                                                             |
 | ---- | ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
 | 10.1  | [Introduction to AWS Lambda](https://github.com/bhuvan-raj/AWS-Lambda)              | Introduction to AWS Lambda and hands-on lab |
-| 9.2  | [Containerized Lambda Function](https://github.com/bhuvan-raj/Lambda-Calculator-containerized)  | Create a container image, push to ecr and create a containerized lambda function |
+| 10.2  | [Containerized Lambda Function](https://github.com/bhuvan-raj/Lambda-Calculator-containerized)  | Create a container image, push to ecr and create a containerized lambda function |
+
+
+## 11. AWS RDS
+
+This section provides a detailed understanding of Amazon RDS — how to create, deploy, manage, and optimize relational databases in the cloud. It covers core database concepts, DB instance creation, engine selection, connectivity, backups, Multi-AZ deployments, read replicas, scaling behavior, monitoring, security, maintenance, and hands-on labs.
+
+📂 **[Explore → AWS RDS](./RDS/)**
+
+| #    | Sub-Topic                                                                           | Description                                                             |
+| ---- | ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| 11.1  | [Introduction to AWS RDS](./RDS/Introduction-to-RDS) | Introduction to AWS RDS |
+| 11.2  | [DB Creation and Connecting](DB-Creation-and-Connecting)  | Creating a RDS MySQL database and Connecting it through client from an ec2 machine |
 
 
 ## 🛠️ Prerequisites
