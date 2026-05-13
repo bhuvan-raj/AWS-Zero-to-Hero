@@ -207,6 +207,17 @@ This section provides a detailed understanding of AWS Elastic Beanstalk — how 
 | 12.2 | [Creating and Deploying an Application](./Elastic-Beanstalk/Creating-an-Application) | Creating an Elastic Beanstalk environment and deploying an application |
 
 
+## 13. AWS Route 53
+
+This section provides a detailed understanding of AWS Route 53 — how to manage DNS, create hosted zones, register domains, configure routing policies, and route internet traffic efficiently. It covers core DNS concepts, hosted zones, DNS records, routing policies, health checks, domain registration, private and public hosted zones, failover mechanisms, and hands-on labs.
+
+📂 **[Explore → AWS-Route-53](./Route53/)**
+
+| #    | Sub-Topic                                                                           | Description                                                             |
+| ---- | ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| 13.1 | [Introduction to Route 53](./Route53/Introduction-to-Route53) | Introduction to AWS Route 53 and DNS concepts |
+| 13.2 | [Creating a Hosted Zone](./Route53/Creating-HostedZone) | Creating Public and Private Hosted Zones and configuring DNS records |
+
 ## 🛠️ Prerequisites
 
 * Basic understanding of AWS networking (VPC, Subnets, Security Groups)
