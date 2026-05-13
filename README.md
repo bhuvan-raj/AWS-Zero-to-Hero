@@ -195,6 +195,18 @@ This section provides a detailed understanding of Amazon RDS — how to create, 
 | 11.2  | [DB Creation and Connecting](./RDS/DB-Creation-and-Connecting)  | Creating a RDS MySQL database and Connecting it through client from an ec2 machine |
 
 
+## 12. AWS Elastic Beanstalk
+
+This section provides a detailed understanding of AWS Elastic Beanstalk — how to deploy, manage, monitor, and scale applications in the cloud without manually managing infrastructure. It covers core Elastic Beanstalk concepts, environment creation, deployment workflows, application versions, deployment policies, scaling, load balancing, monitoring, security, Docker support, configuration management, and hands-on labs.
+
+📂 **[Explore → AWS Elastic Beanstalk](./Elastic-Beanstalk/)**
+
+| #    | Sub-Topic                                                                           | Description                                                             |
+| ---- | ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| 12.1 | [Introduction to Elastic Beanstalk](./Elastic-Beanstalk/Introduction-to-EB) | Introduction to AWS Elastic Beanstalk |
+| 12.2 | [Creating and Deploying an Application](./Elastic-Beanstalk/Creating-and-Deploying-an-Application) | Creating an Elastic Beanstalk environment and deploying an application |
+
+
 ## 🛠️ Prerequisites
 
 * Basic understanding of AWS networking (VPC, Subnets, Security Groups)
