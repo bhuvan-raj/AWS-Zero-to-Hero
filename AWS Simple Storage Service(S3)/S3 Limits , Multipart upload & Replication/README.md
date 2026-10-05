@@ -302,49 +302,168 @@ Automatically replicate objects from a source S3 bucket to a destination S3 buck
 * Objects are automatically replicated in near real-time.
 * IAM Role handles permissions for replication.
 
-Here’s a **structured lab note for S3 Cross-Account Replication (CAR)** that you can use for teaching or your own reference:
+---
+# AWS S3 Cross-Account Replication Lab
+
+## Objective
+
+Configure Amazon S3 to automatically replicate objects from a **source bucket in Account A** to a **destination bucket in Account B**.
+
+### Architecture
+
+```text
+┌──────────────────────┐             ┌──────────────────────┐
+│      Account A       │             │      Account B       │
+│       SOURCE         │             │    DESTINATION       │
+│                      │             │                      │
+│  Source S3 Bucket    │             │ Destination S3 Bucket│
+│         │            │             │          ▲            │
+│         │            │             │          │            │
+│         ▼            │             │          │            │
+│ S3 Replication Role  ├─────────────┼──────────┘            │
+│                      │ Replication │                       │
+└──────────────────────┘             └──────────────────────┘
+```
+
+> **Important:** We use a single replication IAM role in **Account A**. Amazon S3 assumes this role to perform replication.
 
 ---
 
-# **AWS S3 Cross-Account Replication (CAR) Lab Note**
+# Prerequisites
 
-## **Objective**
+You need:
 
-Set up S3 replication to automatically replicate objects from a **source bucket in Account A** to a **destination bucket in Account B**.
+* **Account A** → Source account
+* **Account B** → Destination account
+* One S3 bucket in each account
+* Versioning enabled on both buckets
+* Permission to create IAM roles and edit S3 bucket policies
 
----
+For this lab, use example names:
 
-## **Pre-requisites**
+```text
+Account A:
+Source Bucket → bubu-source-bucket-12345
 
-1. Two AWS accounts (Account A: Source, Account B: Destination).
-2. Two S3 buckets:
+Account B:
+Destination Bucket → bubu-destination-bucket-67890
+```
 
-   * **Source bucket** (Account A)
-   * **Destination bucket** (Account B)
-3. Versioning enabled on **both buckets**.
-4. IAM roles/policies for replication permissions.
-
----
-
-## **Step 1: Enable Versioning**
-
-* Versioning must be **enabled** on both source and destination buckets.
-
-**Source Bucket (Account A):**
-Console → S3 → Select Bucket → Properties → Bucket Versioning → Enable
-
-**Destination Bucket (Account B):**
-Console → S3 → Select Bucket → Properties → Bucket Versioning → Enable
+Replace these with your own globally unique bucket names.
 
 ---
 
-## **Step 2: Create IAM Role in Destination Account**
+# Step 1: Create the Source Bucket
 
-* **Purpose:** Allow the source account to replicate objects into the destination bucket.
+Log in to **Account A**.
 
-1. Go to **Account B → IAM → Roles → Create Role**
-2. Choose **Another AWS Account**, enter **Account A ID**
-3. Attach this policy (replace bucket name):
+Go to:
+
+```text
+AWS Console
+   ↓
+S3
+   ↓
+Create bucket
+```
+
+Create:
+
+```text
+Bucket name:
+bubu-source-bucket-12345
+```
+
+Keep the default settings for this lab.
+
+Create the bucket.
+
+---
+
+# Step 2: Create the Destination Bucket
+
+Log in to **Account B**.
+
+Go to:
+
+```text
+S3
+   ↓
+Create bucket
+```
+
+Create:
+
+```text
+Bucket name:
+bubu-destination-bucket-67890
+```
+
+Create the bucket.
+
+---
+
+# Step 3: Enable Versioning on Both Buckets
+
+Versioning is required for S3 replication.
+
+### Account A
+
+```text
+S3
+ ↓
+Source Bucket
+ ↓
+Properties
+ ↓
+Bucket Versioning
+ ↓
+Enable
+```
+
+### Account B
+
+```text
+S3
+ ↓
+Destination Bucket
+ ↓
+Properties
+ ↓
+Bucket Versioning
+ ↓
+Enable
+```
+
+Verify that both show:
+
+```text
+Bucket Versioning: Enabled
+```
+
+---
+
+# Step 4: Create the Replication IAM Role in Account A
+
+Now log in to **Account A**.
+
+Go to:
+
+```text
+IAM
+ ↓
+Roles
+ ↓
+Create role
+```
+
+For the trusted entity, choose:
+
+```text
+Custom trust policy
+```
+
+Use:
 
 ```json
 {
@@ -352,53 +471,53 @@ Console → S3 → Select Bucket → Properties → Bucket Versioning → Enable
   "Statement": [
     {
       "Effect": "Allow",
-      "Action": [
-        "s3:ReplicateObject",
-        "s3:ReplicateDelete",
-        "s3:ReplicateTags"
-      ],
-      "Resource": "arn:aws:s3:::destination-bucket/*"
+      "Principal": {
+        "Service": "s3.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
     }
   ]
 }
 ```
 
-4. Name the role `s3-cross-account-replication-role`
-5. Note the **Role ARN** (e.g., `arn:aws:iam::AccountB_ID:role/s3-cross-account-replication-role`)
+Create the role with:
 
----
-
-## **Step 3: Attach Bucket Policy to Destination Bucket**
-
-* Destination bucket must **trust the source account**:
-
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": { "AWS": "arn:aws:iam::AccountA_ID:role/s3-replication-role" },
-      "Action": [
-        "s3:ReplicateObject",
-        "s3:ReplicateDelete",
-        "s3:ReplicateTags"
-      ],
-      "Resource": "arn:aws:s3:::destination-bucket/*"
-    }
-  ]
-}
+```text
+Role name:
+s3-cross-account-replication-role
 ```
 
+The important point here is:
+
+```text
+S3 Service
+    ↓
+AssumeRole
+    ↓
+s3-cross-account-replication-role
+```
+
+We are **not** creating a replication role in Account B.
+
 ---
 
-## **Step 4: Create IAM Role in Source Account**
+# Step 5: Give the Role Permission to Read the Source Bucket
 
-* **Purpose:** Source bucket uses this role to perform replication.
+Still in **Account A**, open:
 
-1. Go to **Account A → IAM → Roles → Create Role**
-2. Choose **S3** → **Replication**
-3. Attach policy (replace bucket names):
+```text
+IAM
+ ↓
+Roles
+ ↓
+s3-cross-account-replication-role
+ ↓
+Add permissions
+ ↓
+Create inline policy
+```
+
+Choose **JSON** and add:
 
 ```json
 {
@@ -407,52 +526,427 @@ Console → S3 → Select Bucket → Properties → Bucket Versioning → Enable
     {
       "Effect": "Allow",
       "Action": [
-        "s3:GetObjectVersion",
-        "s3:GetObjectVersionAcl",
-        "s3:GetObjectVersionTagging"
+        "s3:GetReplicationConfiguration",
+        "s3:ListBucket"
       ],
-      "Resource": "arn:aws:s3:::source-bucket/*"
+      "Resource": "arn:aws:s3:::SOURCE-BUCKET"
     },
     {
       "Effect": "Allow",
       "Action": [
-        "sts:AssumeRole"
+        "s3:GetObjectVersionForReplication",
+        "s3:GetObjectVersionAcl",
+        "s3:GetObjectVersionTagging"
       ],
-      "Resource": "arn:aws:iam::AccountB_ID:role/s3-cross-account-replication-role"
+      "Resource": "arn:aws:s3:::SOURCE-BUCKET/*"
     }
   ]
 }
 ```
 
-4. Name it `s3-replication-role`
-5. Note the **Role ARN** (used in replication rule).
+Replace:
+
+```text
+SOURCE-BUCKET
+```
+
+with your actual source bucket.
+
+For example:
+
+```text
+arn:aws:s3:::bubu-source-bucket-12345
+```
+
+and:
+
+```text
+arn:aws:s3:::bubu-source-bucket-12345/*
+```
+
+Name the policy:
+
+```text
+S3ReplicationSourceAccess
+```
 
 ---
 
-## **Step 5: Configure Replication Rule on Source Bucket**
+# Step 6: Give the Role Permission to Write to Account B
 
-1. Go to **Account A → S3 → Source Bucket → Management → Replication Rules → Create Rule**
-2. **Rule Scope:** Apply to all objects or specific prefix/tag
-3. **Destination:**
+This is the important cross-account part.
 
-   * Choose **Another AWS Account**
-   * Enter **Account B ID**
-   * Enter **Destination Bucket**
-   * Choose **IAM Role** → `s3-replication-role`
-4. **Additional Options:** Enable replication of **delete markers**, **replicate existing objects** (optional)
-5. Review and **Create Rule**
+Still in **Account A**, attach another inline policy to:
+
+```text
+s3-cross-account-replication-role
+```
+
+Use:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:ReplicateObject",
+        "s3:ReplicateDelete",
+        "s3:ReplicateTags"
+      ],
+      "Resource": "arn:aws:s3:::DESTINATION-BUCKET/*"
+    }
+  ]
+}
+```
+
+Replace:
+
+```text
+DESTINATION-BUCKET
+```
+
+with the Account B bucket.
+
+For example:
+
+```text
+arn:aws:s3:::bubu-destination-bucket-67890/*
+```
+
+Name the policy:
+
+```text
+S3ReplicationDestinationAccess
+```
 
 ---
 
-## **Step 6: Test Replication**
+# Step 7: Configure the Destination Bucket Policy
 
-1. Upload an object to **source bucket**:
+Now log in to **Account B**.
 
+Go to:
 
-2. Check **destination bucket** in Account B → object should appear automatically (replication is near real-time).
-3. Optional: Delete the file in source bucket → verify delete marker appears in destination (if enabled).
+```text
+S3
+ ↓
+Destination Bucket
+ ↓
+Permissions
+ ↓
+Bucket policy
+```
+
+Add:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowReplicationFromAccountA",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::ACCOUNT-A-ID:role/s3-cross-account-replication-role"
+      },
+      "Action": [
+        "s3:ReplicateObject",
+        "s3:ReplicateDelete",
+        "s3:ReplicateTags"
+      ],
+      "Resource": "arn:aws:s3:::DESTINATION-BUCKET/*"
+    }
+  ]
+}
+```
+
+Replace:
+
+```text
+ACCOUNT-A-ID
+```
+
+with the AWS Account ID of Account A.
+
+Replace:
+
+```text
+DESTINATION-BUCKET
+```
+
+with the Account B bucket name.
+
+For example:
+
+```json
+"Principal": {
+  "AWS": "arn:aws:iam::111111111111:role/s3-cross-account-replication-role"
+}
+```
 
 ---
+
+# Step 8: Get the Replication Role ARN
+
+Go back to **Account A**:
+
+```text
+IAM
+ ↓
+Roles
+ ↓
+s3-cross-account-replication-role
+```
+
+Copy the ARN.
+
+It will look like:
+
+```text
+arn:aws:iam::111111111111:role/s3-cross-account-replication-role
+```
+
+You'll use this when creating the replication rule.
+
+---
+
+# Step 9: Create the Replication Rule
+
+Go to **Account A**:
+
+```text
+S3
+ ↓
+Source Bucket
+ ↓
+Management
+ ↓
+Replication rules
+ ↓
+Create replication rule
+```
+
+Give it a name:
+
+```text
+replicate-to-account-b
+```
+
+### Rule scope
+
+For the lab, choose:
+
+```text
+Apply to all objects in the bucket
+```
+
+### Destination
+
+Choose:
+
+```text
+Another AWS account
+```
+
+Enter:
+
+```text
+Account ID:
+ACCOUNT-B-ID
+```
+
+Then select/specify the destination bucket:
+
+```text
+arn:aws:s3:::bubu-destination-bucket-67890
+```
+
+---
+
+# Step 10: Select the IAM Role
+
+For the replication IAM role, select:
+
+```text
+Choose from existing IAM role
+```
+
+Select:
+
+```text
+s3-cross-account-replication-role
+```
+
+The role is in **Account A**.
+
+Remember:
+
+```text
+Account A
+    │
+    └── s3-cross-account-replication-role
+             │
+             │
+             ▼
+       Account B Bucket
+```
+
+---
+
+# Step 11: Replication Options
+
+For the lab, you can enable:
+
+```text
+Delete marker replication
+```
+
+If you want to demonstrate replication of existing objects, enable:
+
+```text
+Replicate existing objects
+```
+
+However, for a simple lab, I recommend **testing with a newly uploaded object first**.
+
+Create the replication rule.
+
+---
+
+# Step 12: Test Replication
+
+Go to **Account A**:
+
+```text
+S3
+ ↓
+Source Bucket
+ ↓
+Upload
+```
+
+Create a file:
+
+```text
+test.txt
+```
+
+with:
+
+```text
+Hello from Account A
+```
+
+Upload it.
+
+Then go to **Account B**:
+
+```text
+S3
+ ↓
+Destination Bucket
+```
+
+You should eventually see:
+
+```text
+test.txt
+```
+
+The object has been replicated.
+
+---
+
+# Step 13: Test Versioning
+
+Modify the file in Account A.
+
+For example:
+
+```text
+Version 1:
+Hello from Account A
+```
+
+Then upload another version:
+
+```text
+Version 2:
+Hello from Account A - Updated
+```
+
+Check:
+
+```text
+Source Bucket
+ ↓
+Object
+ ↓
+Versions
+```
+
+You should see multiple versions.
+
+Then check the destination bucket and verify that the replicated versions are present.
+
+---
+
+# Final Architecture
+
+```text
+                         ACCOUNT A
+                    ┌───────────────────┐
+                    │                   │
+                    │  Source Bucket    │
+                    │                   │
+                    │   test.txt        │
+                    │       │           │
+                    └───────┼───────────┘
+                            │
+                            │ S3 assumes role
+                            ▼
+                 ┌──────────────────────┐
+                 │ s3-cross-account-    │
+                 │ replication-role     │
+                 └──────────┬───────────┘
+                            │
+                            │ ReplicateObject
+                            │ ReplicateDelete
+                            │ ReplicateTags
+                            ▼
+                    ┌───────────────────┐
+                    │    ACCOUNT B      │
+                    │                   │
+                    │ Destination      │
+                    │ Bucket            │
+                    │                   │
+                    │ test.txt ✓        │
+                    └───────────────────┘
+```
+
+### The key concept students should remember
+
+```text
+S3 in Account A
+      │
+      │ assumes
+      ▼
+IAM Role in Account A
+      │
+      │ reads
+      ▼
+Source Bucket
+      │
+      │ replicates
+      ▼
+Destination Bucket in Account B
+```
+
+
+
+
 
 ## **Step 7: Lab Outcome**
 
