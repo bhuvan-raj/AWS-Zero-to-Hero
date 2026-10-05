@@ -343,10 +343,10 @@ For this lab, use example names:
 
 ```text
 Account A:
-Source Bucket → bubu-source-bucket-12345
+Source Bucket → source-bucket-12345
 
 Account B:
-Destination Bucket → bubu-destination-bucket-67890
+Destination Bucket → destination-bucket-67890
 ```
 
 Replace these with your own globally unique bucket names.
@@ -371,7 +371,7 @@ Create:
 
 ```text
 Bucket name:
-bubu-source-bucket-12345
+source-bucket-12345
 ```
 
 Keep the default settings for this lab.
@@ -396,7 +396,7 @@ Create:
 
 ```text
 Bucket name:
-bubu-destination-bucket-67890
+destination-bucket-67890
 ```
 
 Create the bucket.
@@ -555,13 +555,13 @@ with your actual source bucket.
 For example:
 
 ```text
-arn:aws:s3:::bubu-source-bucket-12345
+arn:aws:s3:::source-bucket-12345
 ```
 
 and:
 
 ```text
-arn:aws:s3:::bubu-source-bucket-12345/*
+arn:aws:s3:::source-bucket-12345/*
 ```
 
 Name the policy:
@@ -612,7 +612,7 @@ with the Account B bucket.
 For example:
 
 ```text
-arn:aws:s3:::bubu-destination-bucket-67890/*
+arn:aws:s3:::destination-bucket-67890/*
 ```
 
 Name the policy:
@@ -760,7 +760,7 @@ ACCOUNT-B-ID
 Then select/specify the destination bucket:
 
 ```text
-arn:aws:s3:::bubu-destination-bucket-67890
+arn:aws:s3:::destination-bucket-67890
 ```
 
 ---
@@ -796,20 +796,6 @@ Account A
 ---
 
 # Step 11: Replication Options
-
-For the lab, you can enable:
-
-```text
-Delete marker replication
-```
-
-If you want to demonstrate replication of existing objects, enable:
-
-```text
-Replicate existing objects
-```
-
-However, for a simple lab, I recommend **testing with a newly uploaded object first**.
 
 Create the replication rule.
 
@@ -919,7 +905,7 @@ Then check the destination bucket and verify that the replicated versions are pr
                     ┌───────────────────┐
                     │    ACCOUNT B      │
                     │                   │
-                    │ Destination      │
+                    │ Destination       │
                     │ Bucket            │
                     │                   │
                     │ test.txt ✓        │
